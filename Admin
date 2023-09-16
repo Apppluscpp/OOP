@@ -1,19 +1,25 @@
+import java.io.*;
+import java.util.Scanner;
 
 public class Admin extends User {
 
-    private final String username = "abc";
-    private final String password = "123";
-    
+    private static final String ADMIN_FILE = "Admin.txt"; // File to store admin credentials
+
     public Admin() {
+        // Check if the admin file exists; if not, create it with default credentials
+        if (!adminFileExists()) {
+            createAdminFile("abc", "123");
+        }
     }
 
     public Admin(String username, String password) {
         super(username, password);
     }
 
-    public boolean adminLogin(String username, String password) {
-        if (username.equals(this.username) && password.equals(this.password)) {
-            System.out.println("Login Succefull.");
+    public boolean adminLogin(String enteredUsername, String enteredPassword) {
+        // Check if the entered credentials match those in the file
+        if (checkCredentials(enteredUsername, enteredPassword)) {
+            System.out.println("Login Successful.");
             return true;
         } else {
             System.out.println("Login failed. Please try again.\n");
@@ -23,10 +29,45 @@ public class Admin extends User {
 
     public void adminMenu() {
         System.out.println("\n\t\tWelcome Admin!!!\n");
-        System.out.println("1.Add Event");
-        System.out.println("2.View Event");
-        System.out.println("3.Modify Event");
-        System.out.println("4.Delete Event");
-        System.out.println("5.Logout");
+        System.out.println("1. Add Event");
+        System.out.println("2. View Event");
+        System.out.println("3. Modify Event");
+        System.out.println("4. Delete Event");
+        System.out.println("5. Logout");
+    }
+
+    // Method to check if the "Admin.txt" file exists
+    private boolean adminFileExists() {
+        File file = new File(ADMIN_FILE);
+        return file.exists();
+    }
+
+    // Method to create the "Admin.txt" file with default admin credentials
+    private void createAdminFile(String defaultUsername, String defaultPassword) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(ADMIN_FILE))) {
+            writer.println(defaultUsername + " " + defaultPassword);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Method to check if the entered credentials match the data in the "Admin.txt" file
+    private boolean checkCredentials(String enteredUsername, String enteredPassword) {
+        try (Scanner scanner = new Scanner(new File(ADMIN_FILE))) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                String[] parts = line.split(" ");
+                if (parts.length == 2) {
+                    String fileUsername = parts[0];
+                    String filePassword = parts[1];
+                    if (enteredUsername.equals(fileUsername) && enteredPassword.equals(filePassword)) {
+                        return true; // Credentials match
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false; // Credentials do not match
     }
 }
