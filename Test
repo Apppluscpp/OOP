@@ -9,15 +9,19 @@ public class Test {
         String username;
         String password;
         boolean exit = false;
+        boolean valid = false;
+
         Admin admin = new Admin("abc", "123");
         Scanner scanner = new Scanner(System.in);
         List<Participant> participants = new ArrayList<>();
         List<Exhibitor> exhibitors = new ArrayList<>();
 
+        Exhibitor exhibitor = new Exhibitor();
+        Participant participant = new Participant();
+
         while (!exit) {
             admin.welcomePage();
             int loginChoice = scanner.nextInt();
-            boolean valid = false;
 
             switch (loginChoice) {
                 case 1:
@@ -44,21 +48,8 @@ public class Test {
                         System.out.print("Enter your Password: ");
                         password = scanner.next();
 
-                        Exhibitor matchingExhibitor = null;
-                        for (Exhibitor exhibitor : exhibitors) {
-                            if (exhibitor.login(username, password)) {
-                                matchingExhibitor = exhibitor;
-                                break; // Exit the loop once a matching exhibitor is found
-                            }
-                        }
-                        if (matchingExhibitor != null) {
-                            matchingExhibitor.loginSuceed();
-                            valid = true;
-                            //show the list of ongoing event
-                            //matchingExhibitor.adminMenu();
-                        } else {
-                            System.out.println("Exhibitor login failed. Please try again.\n");
-                        }
+                        valid = exhibitor.exhibitorLogin(username, password, exhibitors);
+
                     } while (!valid);
                     break;
                 case 3:
@@ -68,26 +59,12 @@ public class Test {
                         System.out.print("Enter your Password: ");
                         password = scanner.next();
 
-                        Participant matchingParticipant = null;
-                        for (Participant participant : participants) {
-                            if (participant.login(username, password)) {
-                                matchingParticipant = participant;
-                                break; // Exit the loop once a matching participant is found
-                            }
-                        }
-                        if (matchingParticipant != null) {
-                            matchingParticipant.loginSuceed();
-                            valid = true;
-                            matchingParticipant.participantMenu();
-                        } else {
-                            System.out.println("Participant login failed. Please try again.\n");
-                        }
+                        valid = participant.participantLogin(username, password, participants);
                     } while (!valid);
                     break;
 
                 case 4:
                     do {
-                        System.out.println("\t\t***Welcome to the Registration Page***\n");
                         System.out.println("1.Participants");
                         System.out.println("2.Exhibitors");
                         System.out.print("Select account to register: ");
@@ -97,17 +74,12 @@ public class Test {
                         System.out.print("Enter the password: ");
                         password = scanner.next();
                         if (role == 1) {
-                            Participant participant = new Participant(username, password);
-                            participants.add(participant);
-                            System.out.println("Participant registered successfully!");
-                            valid = true;
+                            valid = participant.participantRegistration(username, password, participants);
                         } else if (role == 2) {
-                            Exhibitor exhibitor = new Exhibitor(username, password);
-                            exhibitors.add(exhibitor);
-                            System.out.println("Exhibitor registered successfully!");
-                            valid = true;
+                            valid = exhibitor.exhibitorRegistration(username, password, exhibitors);
                         } else {
                             System.out.println("Invalid role selection.");
+                            valid  = false;
                         }
                     } while (!valid);
                     break; // Added break here to exit the switch after registration
