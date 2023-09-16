@@ -1,0 +1,133 @@
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+public class Test {
+
+    public static void main(String[] args) {
+        String username;
+        String password;
+        boolean exit = false;
+        Admin admin = new Admin("abc", "123");
+        Scanner scanner = new Scanner(System.in);
+        List<Participant> participants = new ArrayList<>();
+        List<Exhibitor> exhibitors = new ArrayList<>();
+
+        while (!exit) {
+            admin.welcomePage();
+            int loginChoice = scanner.nextInt();
+            boolean valid = false;
+
+            switch (loginChoice) {
+                case 1:
+                    do {
+                        System.out.print("Enter your username: ");
+                        username = scanner.next();
+                        System.out.print("Enter your Password: ");
+                        password = scanner.next();
+
+                        if (admin.login(username, password)) {
+                            admin.loginSuceed();
+                            valid = true;
+                            admin.adminMenu();
+                            // System.exit(0); // Uncomment if you want to exit after admin login
+                        } else {
+                            admin.loginFail();
+                        }
+                    } while (!valid);
+                    break; // Added break here to exit the switch after admin login
+                case 2:
+                    do {
+                        System.out.print("Enter your username: ");
+                        username = scanner.next();
+                        System.out.print("Enter your Password: ");
+                        password = scanner.next();
+
+                        Exhibitor matchingExhibitor = null;
+                        for (Exhibitor exhibitor : exhibitors) {
+                            if (exhibitor.login(username, password)) {
+                                matchingExhibitor = exhibitor;
+                                break; // Exit the loop once a matching exhibitor is found
+                            }
+                        }
+                        if (matchingExhibitor != null) {
+                            matchingExhibitor.loginSuceed();
+                            valid = true;
+                            //show the list of ongoing event
+                            //matchingExhibitor.adminMenu();
+                        } else {
+                            System.out.println("Exhibitor login failed. Please try again.\n");
+                        }
+                    } while (!valid);
+                    break;
+                case 3:
+                    do {
+                        System.out.print("Enter your username: ");
+                        username = scanner.next();
+                        System.out.print("Enter your Password: ");
+                        password = scanner.next();
+
+                        Participant matchingParticipant = null;
+                        for (Participant participant : participants) {
+                            if (participant.login(username, password)) {
+                                matchingParticipant = participant;
+                                break; // Exit the loop once a matching participant is found
+                            }
+                        }
+                        if (matchingParticipant != null) {
+                            matchingParticipant.loginSuceed();
+                            valid = true;
+                            matchingParticipant.participantMenu();
+                        } else {
+                            System.out.println("Participant login failed. Please try again.\n");
+                        }
+                    } while (!valid);
+                    break;
+
+                case 4:
+                    do {
+                        System.out.println("\t\t***Welcome to the Registration Page***\n");
+                        System.out.println("1.Participants");
+                        System.out.println("2.Exhibitors");
+                        System.out.print("Select account to register: ");
+                        int role = scanner.nextInt();
+                        System.out.print("Enter the username: ");
+                        username = scanner.next();
+                        System.out.print("Enter the password: ");
+                        password = scanner.next();
+                        if (role == 1) {
+                            Participant participant = new Participant(username, password);
+                            participants.add(participant);
+                            System.out.println("Participant registered successfully!");
+                            valid = true;
+                        } else if (role == 2) {
+                            Exhibitor exhibitor = new Exhibitor(username, password);
+                            exhibitors.add(exhibitor);
+                            System.out.println("Exhibitor registered successfully!");
+                            valid = true;
+                        } else {
+                            System.out.println("Invalid role selection.");
+                        }
+                    } while (!valid);
+                    break; // Added break here to exit the switch after registration
+                default:
+                    System.out.println("Invalid Selection");
+                    break;
+            }
+
+            System.out.print("Do you want to exit? (y/n): ");
+            String exitChoice = scanner.next();
+            if (exitChoice.equalsIgnoreCase("y")) {
+                exit = true;
+            }
+        }
+    }
+}
+
+/*
+                            int participantCount = participants.size();
+                            int exhibitorCount = exhibitors.size();
+                            System.out.println("Total Participants registered: " + participantCount);
+                            System.out.println("Total Exhibitors registered: " + exhibitorCount);
+ */
