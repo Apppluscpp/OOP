@@ -1,0 +1,11 @@
+
+public class Exhibitor extends User {
+
+    public Exhibitor() {
+    }
+
+    public Exhibitor(String username, String password) {
+        super(username, password);
+    }
+
+}
