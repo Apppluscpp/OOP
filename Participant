@@ -1,0 +1,18 @@
+
+public class Participant extends User {
+
+    public Participant() {
+    }
+
+    public Participant(String username, String password) {
+        super(username, password);
+    }
+
+    public void participantMenu() {
+        System.out.println("\n\t\tWelcome !!!\n");
+        System.out.println("1.Individual Attendee");
+        System.out.println("2.Representative from an Organization");
+        System.out.println("Select (1 - 2): ");
+    }
+
+}
