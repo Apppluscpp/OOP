@@ -1,0 +1,42 @@
+
+public class User {
+
+    private String username;
+    private String psw;
+
+    public User() {
+    }
+
+    public User(String username, String psw) {
+        this.username = username;
+        this.psw = psw;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPsw() {
+        return username;
+    }
+
+    public void updateUsername(String username) {
+        this.username = username;
+    }
+
+    public void updatePassword(String psw) {
+        this.psw = psw;
+    }
+
+    public void welcomePage() {
+        System.out.println("1.Administrator");
+        System.out.println("2.Exhibitors");
+        System.out.println("3.Participants");
+        System.out.println("4.Registration\n");
+    }
+
+    public boolean login(String nameEntered, String passwordEntered) {
+        return username.equals(nameEntered) && psw.equals(passwordEntered);
+    }
+
+}
