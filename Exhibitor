@@ -1,4 +1,7 @@
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Exhibitor extends User {
 
     public Exhibitor() {
@@ -6,6 +9,32 @@ public class Exhibitor extends User {
 
     public Exhibitor(String username, String password) {
         super(username, password);
+    }
+
+    public boolean exhibitorRegistration(String username, String password, List<Exhibitor> exhibitors) {
+        Exhibitor exhibitor = new Exhibitor(username, password);
+        exhibitors.add(exhibitor);
+        System.out.println("Exhibitor registered successfully!");
+        return true;
+    }
+
+    public boolean exhibitorLogin(String username, String password, List<Exhibitor> exhibitors) {
+        Exhibitor matchingExhibitor = null;
+        for (Exhibitor exhibitor : exhibitors) {
+            if (exhibitor.login(username, password)) {
+                matchingExhibitor = exhibitor;
+                break; // Exit the loop once a matching exhibitor is found
+            }
+        }
+        if (matchingExhibitor != null) {
+            matchingExhibitor.loginSuceed();
+            return true;
+            //show the list of ongoing event
+            //matchingExhibitor.adminMenu();
+        } else {
+            System.out.println("Exhibitor login failed. Please try again.\n");
+            return false;
+        }
     }
 
 }
