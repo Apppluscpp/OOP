@@ -1,5 +1,6 @@
 
 import java.util.ArrayList;
+import java.util.InputMismatchException; // Import the InputMismatchException class
 import java.util.List;
 import java.util.Scanner;
 
@@ -18,10 +19,24 @@ public class Test {
         Admin admin = new Admin();
         Exhibitor exhibitor = new Exhibitor();
         Participant participant = new Participant();
+        EventManagement m1 = new EventManagement();
+        EventParticipation p1 = new EventParticipation();
+        EventSurvey s1 = new EventSurvey();
 
         while (!exit) {
-            admin.welcomePage();
-            int loginChoice = scanner.nextInt();
+            int loginChoice;
+            System.out.println("\t\t***Welcome to the Login Page***\n");
+            do {
+                try {
+                    admin.welcomePage();
+                    System.out.print("Enter your login choice(1 - 4): ");
+                    loginChoice = scanner.nextInt();
+                    break; // Break the loop if valid input is provided
+                } catch (InputMismatchException e) {
+                    System.out.println("Invalid input. Please enter a valid choice.\n");
+                    scanner.nextLine(); // Clear the input buffer
+                }
+            } while (true);
 
             switch (loginChoice) {
                 case 1:
@@ -32,8 +47,9 @@ public class Test {
                         password = scanner.next();
 
                         valid = admin.adminLogin(username, password);
+                        m1.mainMenu();
                     } while (!valid);
-                    break; // Added break here to exit the switch after admin login
+                    break;
                 case 2:
                     do {
                         System.out.print("Enter your username: ");
@@ -53,15 +69,26 @@ public class Test {
                         password = scanner.next();
 
                         valid = participant.participantLogin(username, password, participants);
+                        s1.surveyMenu();
                     } while (!valid);
                     break;
 
                 case 4:
                     do {
-                        System.out.println("1.Participants");
-                        System.out.println("2.Exhibitors");
-                        System.out.print("Select account to register: ");
-                        int role = scanner.nextInt();
+                        int role;
+                        do {
+                            try {
+                                System.out.println("1.Participants");
+                                System.out.println("2.Exhibitors");
+                                System.out.print("Select account to register(1-2): ");
+                                role = scanner.nextInt();
+                                break; // Break the loop if valid input is provided
+                            } catch (InputMismatchException e) {
+                                System.out.println("Invalid input. Please enter a valid choice.\n");
+                                scanner.nextLine(); // Clear the input buffer
+                            }
+                        } while (true);
+
                         System.out.print("Enter the username: ");
                         username = scanner.next();
                         System.out.print("Enter the password: ");
@@ -75,24 +102,22 @@ public class Test {
                             valid = false;
                         }
                     } while (!valid);
-                    break; // Added break here to exit the switch after registration
+                    break;
+
                 default:
-                    System.out.println("Invalid Selection");
+                    System.out.println("Please enter 1 - 4 only");
                     break;
             }
+            System.out.print("Press Y to exit, N to stay: ");
+            String exitChoice = scanner.next().toLowerCase(); // Convert the input to lowercase
 
-            System.out.print("Do you want to exit? (y/n): ");
-            String exitChoice = scanner.next();
-            if (exitChoice.equalsIgnoreCase("y")) {
+            if (exitChoice.equals("y")) {
                 exit = true;
+            } else if (exitChoice.equals("n")) {
+                // No need to do anything, the loop will continue
+            } else {
+                System.out.println("Invalid choice. Please enter 'Y' or 'N'.");
             }
         }
     }
 }
-
-/*
-                            int participantCount = participants.size();
-                            int exhibitorCount = exhibitors.size();
-                            System.out.println("Total Participants registered: " + participantCount);
-                            System.out.println("Total Exhibitors registered: " + exhibitorCount);
- */
