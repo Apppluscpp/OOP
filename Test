@@ -47,7 +47,9 @@ public class Test {
                         password = scanner.next();
 
                         valid = admin.adminLogin(username, password);
-                        m1.mainMenu();
+                        if (valid) {
+                            m1.mainMenu();
+                        }
                     } while (!valid);
                     break;
                 case 2:
@@ -57,7 +59,7 @@ public class Test {
                         System.out.print("Enter your Password: ");
                         password = scanner.next();
 
-                        valid = exhibitor.exhibitorLogin(username, password, exhibitors);
+                        valid = exhibitor.exhibitorLogin(username, password);
 
                     } while (!valid);
                     break;
@@ -68,8 +70,8 @@ public class Test {
                         System.out.print("Enter your Password: ");
                         password = scanner.next();
 
-                        valid = participant.participantLogin(username, password, participants);
-                        s1.surveyMenu();
+                        valid = participant.participantLogin(username, password);
+                        //s1.surveyMenu();
                     } while (!valid);
                     break;
 
@@ -94,9 +96,9 @@ public class Test {
                         System.out.print("Enter the password: ");
                         password = scanner.next();
                         if (role == 1) {
-                            valid = participant.participantRegistration(username, password, participants);
+                            valid = participant.participantRegistration(username, password);
                         } else if (role == 2) {
-                            valid = exhibitor.exhibitorRegistration(username, password, exhibitors);
+                            valid = exhibitor.exhibitorRegistration(username, password);
                         } else {
                             System.out.println("Invalid role selection.");
                             valid = false;
