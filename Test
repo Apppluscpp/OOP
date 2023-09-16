@@ -9,8 +9,12 @@ public class Test {
     public static void main(String[] args) {
         String username;
         String password;
+        String newUsername;
+        String newPassword;
         boolean exit = false;
         boolean valid = false;
+        int loginChoice;
+        int adminChoice;
 
         Scanner scanner = new Scanner(System.in);
         List<Participant> participants = new ArrayList<>();
@@ -24,7 +28,6 @@ public class Test {
         EventSurvey s1 = new EventSurvey();
 
         while (!exit) {
-            int loginChoice;
             System.out.println("\t\t***Welcome to the Login Page***\n");
             do {
                 try {
@@ -49,6 +52,16 @@ public class Test {
                         valid = admin.adminLogin(username, password);
                         if (valid) {
                             m1.mainMenu();
+                            adminChoice = scanner.nextInt();
+                            switch (adminChoice) {
+                                case 5:
+                                    System.out.print("Enter new username: ");
+                                    newUsername = scanner.next();
+                                    System.out.print("Enter new Password: ");
+                                    newPassword = scanner.next();
+                                    
+                                    admin.adminUpdate(username, password, newUsername, newPassword);
+                            }
                         }
                     } while (!valid);
                     break;
@@ -105,7 +118,6 @@ public class Test {
                         }
                     } while (!valid);
                     break;
-
                 default:
                     System.out.println("Please enter 1 - 4 only");
                     break;
