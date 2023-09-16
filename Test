@@ -11,11 +11,11 @@ public class Test {
         boolean exit = false;
         boolean valid = false;
 
-        Admin admin = new Admin("abc", "123");
         Scanner scanner = new Scanner(System.in);
         List<Participant> participants = new ArrayList<>();
         List<Exhibitor> exhibitors = new ArrayList<>();
 
+        Admin admin = new Admin();
         Exhibitor exhibitor = new Exhibitor();
         Participant participant = new Participant();
 
@@ -31,14 +31,7 @@ public class Test {
                         System.out.print("Enter your Password: ");
                         password = scanner.next();
 
-                        if (admin.login(username, password)) {
-                            admin.loginSuceed();
-                            valid = true;
-                            admin.adminMenu();
-                            // System.exit(0); // Uncomment if you want to exit after admin login
-                        } else {
-                            admin.loginFail();
-                        }
+                        valid = admin.adminLogin(username, password);
                     } while (!valid);
                     break; // Added break here to exit the switch after admin login
                 case 2:
@@ -79,7 +72,7 @@ public class Test {
                             valid = exhibitor.exhibitorRegistration(username, password, exhibitors);
                         } else {
                             System.out.println("Invalid role selection.");
-                            valid  = false;
+                            valid = false;
                         }
                     } while (!valid);
                     break; // Added break here to exit the switch after registration
