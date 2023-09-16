@@ -1,4 +1,7 @@
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Participant extends User {
 
     public Participant() {
@@ -6,6 +9,31 @@ public class Participant extends User {
 
     public Participant(String username, String password) {
         super(username, password);
+    }
+
+    public boolean participantRegistration(String username, String password, List<Participant> participants) {
+        Participant participant = new Participant(username, password);
+        participants.add(participant);
+        System.out.println("Participant account registered successfully!");
+        return true;
+    }
+
+    public boolean participantLogin(String username, String password, List<Participant> participants) {
+        Participant matchingParticipant = null;
+        for (Participant participant : participants) {
+            if (participant.login(username, password)) {
+                matchingParticipant = participant;
+                break;
+            }
+        }
+        if (matchingParticipant != null) {
+            matchingParticipant.loginSuceed();
+            return true;
+            // Additional functionality here
+        } else {
+            System.out.println("Login failed. Please try again.\n");
+            return false;
+        }
     }
 
     public void participantMenu() {
