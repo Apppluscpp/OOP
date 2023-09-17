@@ -1,100 +1,32 @@
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Set;
-
 public class Exhibitor extends User {
 
-    private static Set<String> registeredCombinations = new HashSet<>();
     private static final String EXHIBITOR_FILE = "Exhibitor.txt";
 
     public Exhibitor() {
+        super();
+        createFileIfNotExists(EXHIBITOR_FILE);
     }
 
     public Exhibitor(String username, String password) {
         super(username, password);
+        createFileIfNotExists(EXHIBITOR_FILE);
+    }
+
+    public static String getFilePath() {
+        return EXHIBITOR_FILE;
     }
 
     public boolean exhibitorRegistration(String username, String password) {
 
-        String combination = username + password;
-
-        // Ensure the text file exists or create it if it doesn't
-        createExhibitorFileIfNotExists();
-
-        // Check for duplicates in the text file
-        if (checkForDuplicate(username, password)) {
+        if (checkDuplicate(EXHIBITOR_FILE, username, password)) {
             System.out.println("Username and password combination already registered.\n");
             return false;
         }
 
-        registeredCombinations.add(combination);
-        saveExhibitorData(username, password);
+        saveData(EXHIBITOR_FILE, username, password);
 
-        System.out.println("Exhibitor account registered successfully!");
+        System.out.println("Participant account registered successfully!");
         return true;
     }
-
-    public boolean exhibitorLogin(String username, String password) {
-        // Check if the "Exhibitor.txt" file exists
-        File file = new File(EXHIBITOR_FILE);
-        if (!file.exists()) {
-            System.out.println("Login failed. Please try again.\n");
-            return false;
-        }
-
-        // Check if the entered credentials exist in the "Exhibitor.txt" file
-        if (checkForDuplicate(username, password)) {
-            System.out.println("Login Successful.");
-            return true;
-            // Additional functionality here
-        } else {
-            System.out.println("Login failed. Please try again.\n");
-            return false;
-        }
-    }
-
-    // Method to ensure the "Exhibitor.txt" file exists or create it if it doesn't
-    private static void createExhibitorFileIfNotExists() {
-        File file = new File(EXHIBITOR_FILE);
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    // Method to check for duplicate combinations in the "Exhibitor.txt" file
-    private static boolean checkForDuplicate(String enteredUsername, String enteredPassword) {
-        try (Scanner scanner = new Scanner(new File(EXHIBITOR_FILE))) {
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                String[] parts = line.split(" ");
-                if (parts.length == 2) {
-                    String fileUsername = parts[0];
-                    String filePassword = parts[1];
-                    if (enteredUsername.equals(fileUsername) && enteredPassword.equals(filePassword)) {
-                        return true; // Combination already exists
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false; // Combination does not exist
-    }
-
-    private static void saveExhibitorData(String username, String password) {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(EXHIBITOR_FILE, true))) {
-            writer.println(username + " " + password);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 }
