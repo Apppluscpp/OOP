@@ -1,3 +1,4 @@
+
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -68,9 +69,9 @@ public class Test {
 
                                     } while (!valid);
                                     do {
-                                        System.out.print("Enter starting time (HHmm): ");
+                                        System.out.print("Enter starting time (24-hour format): ");
                                         startTimeString = scanner.next();
-                                        System.out.print("Enter ending time (HHmm): ");
+                                        System.out.print("Enter ending time (24-hour format): ");
                                         endTimeString = scanner.next();
 
                                         valid = m1.validateTime(startTimeString, endTimeString);
@@ -129,7 +130,18 @@ public class Test {
 
                                     break;
 
-                                case 5:
+                                //Update Event 
+                                case 4:
+                                    valid = false;
+                                    System.out.print("Enter event id: ");
+                                    String eventId = scanner.next();
+                                    m1.updateMenu();
+                                    int choice = scanner.nextInt();
+                                    valid = m1.update(eventId, choice);
+                                    break;
+
+                                //Update Profile
+                                case 6:
                                     System.out.print("Enter new username: ");
                                     newUsername = scanner.next();
                                     System.out.print("Enter new Password: ");
@@ -139,7 +151,8 @@ public class Test {
 
                                     break;
 
-                                case 6:
+                                //log out
+                                case 7:
                                     System.exit(0);
 
                                 default:
@@ -149,7 +162,7 @@ public class Test {
                         }
                     } while (!valid);
                     break;
-                
+
                 // Rest of your code...
             }
             System.out.print("Press Y to exit, N to stay: ");
