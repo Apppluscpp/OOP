@@ -1,0 +1,24 @@
+
+public class Participant extends User {
+
+    private static final String PARTICIPANT_FILE = "Participant.txt";
+
+    public Participant() {
+        super();
+        createFileIfNotExists(PARTICIPANT_FILE);
+    }
+
+    public Participant(String username, String password) {
+        super(username, password);
+        createFileIfNotExists(PARTICIPANT_FILE);
+    }
+
+    public static String getFilePath() {
+        return PARTICIPANT_FILE;
+    }
+
+    public boolean participantRegistration(String username, String password) {
+        return register(PARTICIPANT_FILE, username, password);
+    }
+
+}
