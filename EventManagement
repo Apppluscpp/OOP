@@ -1,0 +1,201 @@
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
+
+public class EventManagement {
+
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    SimpleDateFormat timeFormat = new SimpleDateFormat("HHmm");
+    Date startTime = null;
+    Date endTime = null;
+
+    public void mainMenu() {
+        System.out.println("\n\t\tWelcome Admin!!!\n");
+        System.out.println("1.Create Event");
+        System.out.println("2.View Event");
+        System.out.println("3.Modify Event");
+        System.out.println("4.Delete Event");
+        System.out.println("5.Update Profile");
+        System.out.println("6.Logout\n");
+        System.out.print("Enter your selection(1 - 6): ");
+    }
+
+    public boolean validateDate(String startDateString, String endDateString) {
+    try {
+        Date startDate = dateFormat.parse(startDateString);
+        Date endDate = dateFormat.parse(endDateString);
+
+        // Get the current date
+        Date currentDate = new Date();
+
+        // Calculate the difference in days between the parsed start date and the current date
+        long diffInDaysStart = TimeUnit.DAYS.convert(startDate.getTime() - currentDate.getTime(), TimeUnit.MILLISECONDS);
+
+        // Calculate the difference in days between the parsed end date and the start date
+        long diffInDaysEnd = TimeUnit.DAYS.convert(endDate.getTime() - startDate.getTime(), TimeUnit.MILLISECONDS);
+
+        if (diffInDaysStart >= 2 && diffInDaysEnd >= 0) {
+            return true;
+        } else {
+            System.out.println("Invalid date. The start date must be at least 3 days more than the current date, "
+                    + "and the end date must be the same as or later than the start date.");
+            return false;
+        }
+    } catch (ParseException e) {
+        System.out.println("Invalid date format. Please use yyyy-MM-dd.");
+        return false;
+    }
+}
+
+
+    /*public boolean validateTime(String startTimeString, String endTimeString) {
+        try {
+            timeFormat.setLenient(false); // Disallow lenient parsing
+            startTime = timeFormat.parse(startTimeString);
+            endTime = timeFormat.parse(endTimeString);
+
+            // Check if the end time is greater than the start time
+            if (endTime.after(startTime)) {
+                return true; // Set the flag to exit the loop
+            } else {
+                System.out.println("Ending time must be greater than starting time.\n");
+                return false;
+            }
+        } catch (ParseException e) {
+            System.out.println("Invalid time format. Please use 24-hour format.\n");
+            return false;
+            // Handle the exception for invalid input.
+        }
+    }
+
+    public boolean validateAlpha(String input) {
+        if (!input.matches("^[a-zA-Z]+$")) {
+            System.out.println("Invalid input. Please use only alphabetic characters.\n");
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /*public void createPrograms(String startDateString, String endDateString) {
+        try {
+            Date startDate = dateFormat.parse(startDateString);
+            Date endDate = dateFormat.parse(endDateString);
+
+            long diffInMillies = Math.abs(endDate.getTime() - startDate.getTime());
+            long daysDifference = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+
+            // The number of programs is equal to the number of days
+            int numPrograms = (int) daysDifference + 1;
+
+            // Create an array to store program details for each day
+            Program[] programs = new Program[numPrograms];
+
+            // Create a boolean array to track time slots availability
+            boolean[] timeSlotsAvailable = new boolean[24 * 60]; // 24 hours a day and 60 minutes per hour
+
+            Scanner scanner = new Scanner(System.in);
+
+            for (int i = 0; i < numPrograms; i++) {
+                String startTimeString = "";
+                String endTimeString = "";
+                boolean validTimeSlot = false;
+
+                System.out.println("\nProgram for Day " + (i + 1));
+
+                // Prompt the user for a time slot
+                while (!validTimeSlot) {
+                    System.out.print("Enter activity starting time (HHmm): ");
+                    startTimeString = scanner.next();
+                    System.out.print("Enter activity ending time (HHmm): ");
+                    endTimeString = scanner.next();
+
+                    // Validate the time slot
+                    if (validateTime(startTimeString, endTimeString)
+                            && isTimeSlotAvailable(timeSlotsAvailable, startTimeString, endTimeString)
+                            && isTimeSlotWithinEventTime(startDate, endDate, startTimeString, endTimeString)) {
+                        validTimeSlot = true;
+                        markTimeSlotAsUsed(timeSlotsAvailable, startTimeString, endTimeString);
+                    } else {
+                        System.out.println("Invalid time slot. Please try again.\n");
+                    }
+                }
+
+                // Prompt the user for an activity type
+                scanner.nextLine(); // Consume the newline character
+                System.out.print("Enter activity type: ");
+                String activityType = scanner.nextLine().trim();
+
+                // Create a new program and store the details in the array
+                Program program = new Program(startTimeString, endTimeString, activityType);
+                programs[i] = program;
+
+                System.out.println("Program " + (i + 1) + " details:");
+                System.out.println("Activity Type: " + program.getActivityType());
+                System.out.println("Start Time: " + program.getStartTime());
+                System.out.println("End Time: " + program.getEndTime());
+                System.out.println();
+            }
+
+            // An array of programs for each day
+            // You can access program details using programs[index]
+        } catch (ParseException e) {
+            System.out.println("Invalid date format. Please use yyyy-MM-dd.\n");
+        }
+    }
+
+// Helper method to check if a time slot is within the event's time range
+    private boolean isTimeSlotWithinEventTime(Date startDate, Date endDate, String startTimeString, String endTimeString) {
+        try {
+            Date startTime = timeFormat.parse(startTimeString);
+            Date endTime = timeFormat.parse(endTimeString);
+
+            // Check if the activity start time is after or equal to the event start time
+            // and the activity end time is before or equal to the event end time
+            if ((startTime.equals(startDate) || startTime.after(startDate))
+                    && (endTime.equals(endDate) || endTime.before(endDate))) {
+                return true;
+            } else {
+                System.out.println("Activity time should be within the event time range.");
+                return false;
+            }
+        } catch (ParseException e) {
+            // Handle the exception for invalid time format.
+            return false;
+        }
+    }
+
+    // Helper method to check if a time slot is available
+    private boolean isTimeSlotAvailable(boolean[] timeSlotsAvailable, String startTimeString, String endTimeString) {
+        int startTime = convertTimeToMinutes(startTimeString);
+        int endTime = convertTimeToMinutes(endTimeString);
+
+        for (int i = startTime; i <= endTime; i++) {
+            if (timeSlotsAvailable[i]) {
+                return false; // Time slot is not available
+            }
+        }
+
+        return true; // Time slot is available
+    }
+
+// Helper method to mark a time slot as used
+    private void markTimeSlotAsUsed(boolean[] timeSlotsAvailable, String startTimeString, String endTimeString) {
+        int startTime = convertTimeToMinutes(startTimeString);
+        int endTime = convertTimeToMinutes(endTimeString);
+
+        for (int i = startTime; i <= endTime; i++) {
+            timeSlotsAvailable[i] = true; // Mark the time slot as used
+        }
+    }
+
+// Helper method to convert time in HHmm format to minutes since midnight
+    private int convertTimeToMinutes(String timeString) {
+        int hours = Integer.parseInt(timeString.substring(0, 2));
+        int minutes = Integer.parseInt(timeString.substring(2));
+        return hours * 60 + minutes;
+    }*/
+}
