@@ -205,6 +205,8 @@ public class EventManagement {
                     break;
             }
 
+            setEventId(industryCode + currentEventCount);
+
             String eventFileName = industryCode + currentEventCount + ".txt";
 
             // Check if the event file already exists
@@ -237,6 +239,151 @@ public class EventManagement {
         eventCount = readEventCountFromFile();
     }
 
+    public boolean update(String eventID, int choice) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Define keywords to search for based on the choice
+        String[] keywords = {
+            "Date",
+            "Time",
+            "Venue",
+            "Industry",
+            "Title"
+        };
+
+        // Validate choice
+        if (choice < 1 || choice > keywords.length) {
+            System.out.println("Invalid choice.");
+            return false;
+        }
+
+        // Define the filename based on the eventID
+        String eventFileName = eventID + ".txt";
+
+        File eventFile = new File(eventFileName);
+        if (!eventFile.exists()) {
+            System.out.println("Event file with ID " + eventID + " does not exist.");
+            return false;
+        }
+
+        try (BufferedReader fileReader = new BufferedReader(new FileReader(eventFileName))) {
+            // Read the file contents into a list of lines
+            List<String> lines = new ArrayList<>();
+            String line;
+            while ((line = fileReader.readLine()) != null) {
+                lines.add(line);
+            }
+
+            // Find and remove the line with the specified keyword
+            String keyword = keywords[choice - 1];
+            boolean found = false;
+            boolean valid = false;
+            for (int i = 0; i < lines.size(); i++) {
+                if (lines.get(i).contains(keyword)) {
+                    // Remove the line containing the keyword
+                    lines.remove(i);
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                System.out.println("Keyword not found in the event file.");
+                return false;
+            }
+
+            // Prompt the user for the new value
+            String newValue = "";
+            if (keyword == "Industry") {
+                industryMenu();
+                int updateChoice = scanner.nextInt();
+
+                do {
+                    try {
+                        industryMenu();
+                        int industryChoice = scanner.nextInt();
+                        scanner.nextLine();
+                        switch (industryChoice) {
+                            case 1:
+                                industry = "Food and Beverage";
+                                break;
+                            case 2:
+                                industry = "Technology and Electronics";
+                                break;
+                            case 3:
+                                industry = "Tourism and Travel";
+                                break;
+                            case 4:
+                                industry = "Houseware and Home Products";
+                                break;
+                            case 5:
+                                industry = "Fashion and Apparel";
+                                break;
+                            default:
+                                System.out.println("Please enter 1 - 5 only");
+                                break;
+                        }
+                    } catch (InputMismatchException e) {
+                        System.out.println("Invalid input. Please enter an integer only.");
+                        scanner.nextLine();
+                    }
+                } while (!valid);
+
+            } else if (keyword == "Date") {
+                do {
+                    System.out.print("Enter starting date (yyyy-MM-dd): ");
+                    startDateString = scanner.next();
+                    System.out.print("Enter ending date (yyyy-MM-dd): ");
+                    endDateString = scanner.next();
+
+                    valid = validateDate(startDateString, endDateString);
+
+                } while (!valid);
+                newValue = startDateString + " to " + endDateString;
+
+            } else if (keyword == "Time") {
+                do {
+                    System.out.print("Enter starting time (24-hour format): ");
+                    startTimeString = scanner.next();
+                    System.out.print("Enter ending time (24-hour format): ");
+                    endTimeString = scanner.next();
+
+                    valid = validateTime(startTimeString, endTimeString);
+                } while (!valid);
+                newValue = startTimeString + " to " + endTimeString;
+            } else {
+                String text;
+                do {
+                    System.out.print("Enter the new " + keyword + ": ");
+                    text = scanner.next().trim();
+                    valid = validateAlpha(text);
+                } while (!valid);
+                newValue = text;
+            }
+
+            // Create the updated line with the new value
+            String updatedLine = keyword + ": " + newValue;
+
+            // Insert the updated line back into the list
+            lines.add(updatedLine);
+
+            // Write the updated list of lines back to the file
+            try (BufferedWriter fileWriter = new BufferedWriter(new FileWriter(eventFileName))) {
+                for (String updated : lines) {
+                    fileWriter.write(updated);
+                    fileWriter.newLine();
+                }
+                System.out.println(keyword + " updated successfully.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Failed to update the event file.");
+            return false;
+        }
+
+        return true;
+    }
+
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private SimpleDateFormat timeFormat = new SimpleDateFormat("HHmm");
     private Date startTime = null;
@@ -248,10 +395,11 @@ public class EventManagement {
         System.out.println("\n\t\tWelcome Admin!!!\n");
         System.out.println("1.Create Event");
         System.out.println("2.View Event");
-        System.out.println("3.Modify Event");
-        System.out.println("4.Delete Event");
-        System.out.println("5.Update Profile");
-        System.out.println("6.Logout\n");
+        System.out.println("3.Search Event");
+        System.out.println("4.Update Event");
+        System.out.println("5.Delete Event");
+        System.out.println("6.Update Profile");
+        System.out.println("7.Logout\n");
         System.out.print("Enter your selection(1 - 6): ");
     }
 
@@ -262,6 +410,15 @@ public class EventManagement {
         System.out.println("4.Houseware and Home Products");
         System.out.println("5.Fashion and Apparel");
         System.out.print("Enter industry(1 - 5): ");
+    }
+
+    public void updateMenu() {
+        System.out.println("\n1.Date");
+        System.out.println("2.Time");
+        System.out.println("3.Venue");
+        System.out.println("4.Industry");
+        System.out.println("5.Title");
+        System.out.print("Enter selection(1 - 5): ");
     }
 
     public boolean validateDate(String startDateString, String endDateString) {
@@ -330,7 +487,7 @@ public class EventManagement {
         sb.append("Event ID: ").append(getEventId()).append("\n");
         sb.append("Title: ").append(getTitle()).append("\n");
         sb.append("Date: ").append(getStartDateString()).append(" to ").append(getEndDateString()).append("\n");
-        sb.append("Time: ").append(getStartTimeString()).append(" to ").append(getEndTimeString()).append("\n");
+        sb.append("Time: ").append(getStartTimeString()).append(" - ").append(getEndTimeString()).append("\n");
         sb.append("Venue: ").append(getVenue()).append("\n");
         sb.append("Industry: ").append(getIndustry()).append("\n");
         // Add more details here if needed
