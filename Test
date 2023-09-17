@@ -1,5 +1,4 @@
-
-import java.util.InputMismatchException; // Import the InputMismatchException class
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Test {
@@ -21,8 +20,6 @@ public class Test {
         Exhibitor exhibitor = new Exhibitor();
         Participant participant = new Participant();
         EventManagement m1 = new EventManagement();
-        EventParticipation p1 = new EventParticipation();
-        EventSurvey s1 = new EventSurvey();
 
         while (!exit) {
             System.out.println("\t\t***Welcome to the Login Page***\n");
@@ -31,10 +28,10 @@ public class Test {
                     admin.welcomePage();
                     System.out.print("Enter your login choice(1 - 4): ");
                     loginChoice = scanner.nextInt();
-                    break; // Break the loop if valid input is provided
+                    break;
                 } catch (InputMismatchException e) {
-                    System.out.println("Invalid input. Please enter number only\n");
-                    scanner.nextLine(); // Clear the input buffer
+                    System.out.println("Invalid input. Please enter a number only\n");
+                    scanner.nextLine();
                 }
             } while (true);
 
@@ -62,33 +59,26 @@ public class Test {
                                     String eventID = "";
 
                                     do {
-                                        //System.out.println(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
                                         System.out.print("Enter starting date (yyyy-MM-dd): ");
                                         startDateString = scanner.next();
-
                                         System.out.print("Enter ending date (yyyy-MM-dd): ");
                                         endDateString = scanner.next();
 
                                         valid = m1.validateDate(startDateString, endDateString);
 
                                     } while (!valid);
-                                    m1.setStartDateString(startDateString);
-                                    m1.setEndDateString(endDateString);
                                     do {
                                         System.out.print("Enter starting time (HHmm): ");
                                         startTimeString = scanner.next();
-
                                         System.out.print("Enter ending time (HHmm): ");
                                         endTimeString = scanner.next();
 
                                         valid = m1.validateTime(startTimeString, endTimeString);
                                     } while (!valid);
-                                    m1.setStartTimeString(startTimeString);
-                                    m1.setEndTimeString(endTimeString);
 
                                     do {
                                         System.out.print("Enter venue (Alphabetic characters only): ");
-                                        venue = scanner.next().trim(); // Trim leading/trailing spaces
+                                        venue = scanner.next().trim();
                                         valid = m1.validateAlpha(venue);
                                     } while (!valid);
                                     m1.setVenue(venue);
@@ -97,37 +87,23 @@ public class Test {
                                     do {
                                         try {
                                             m1.industryMenu();
-                                            int industryChoice = scanner.nextInt(); // Read the user's choice
-                                            scanner.nextLine(); // Consume the newline character
+                                            int industryChoice = scanner.nextInt();
+                                            scanner.nextLine();
                                             switch (industryChoice) {
                                                 case 1:
                                                     industry = "Food and Beverage";
-                                                    eventID = "FB" + m1.getEventCount();
-                                                    valid = true;
                                                     break;
                                                 case 2:
                                                     industry = "Technology and Electronics";
-                                                    eventID = "TE" + m1.getEventCount();
-
-                                                    valid = true;
                                                     break;
                                                 case 3:
                                                     industry = "Tourism and Travel";
-                                                    eventID = "TT" + m1.getEventCount();
-
-                                                    valid = true;
                                                     break;
                                                 case 4:
                                                     industry = "Houseware and Home Products";
-                                                    eventID = "HH" + m1.getEventCount();
-
-                                                    valid = true;
                                                     break;
                                                 case 5:
                                                     industry = "Fashion and Apparel";
-                                                    eventID = "FA" + m1.getEventCount();
-
-                                                    valid = true;
                                                     break;
                                                 default:
                                                     System.out.println("Please enter 1 - 5 only");
@@ -135,19 +111,19 @@ public class Test {
                                             }
                                         } catch (InputMismatchException e) {
                                             System.out.println("Invalid input. Please enter an integer only.");
-                                            scanner.nextLine(); // Clear the invalid input
+                                            scanner.nextLine();
                                         }
-                                    } while (!valid);
+                                    } while (industry.isEmpty());
 
                                     m1.setIndustry(industry);
-                                    m1.setEventId(eventID);
 
                                     do {
                                         System.out.print("Enter title (Alphabetic characters only): ");
-                                        title = scanner.next().trim(); // Trim leading/trailing spaces
+                                        title = scanner.next().trim();
                                         valid = m1.validateAlpha(title);
                                     } while (!valid);
                                     m1.setTitle(title);
+                                    m1.saveEventToFile();
 
                                     System.out.println(m1);
 
@@ -161,6 +137,8 @@ public class Test {
 
                                     admin.adminUpdate(username, password, newUsername, newPassword);
 
+                                    break;
+
                                 case 6:
                                     System.exit(0);
 
@@ -171,65 +149,11 @@ public class Test {
                         }
                     } while (!valid);
                     break;
-                case 2:
-                    do {
-                        System.out.print("Enter your username: ");
-                        username = scanner.next();
-                        System.out.print("Enter your Password: ");
-                        password = scanner.next();
-
-                        valid = exhibitor.login(username, password, Exhibitor.getFilePath());
-
-                    } while (!valid);
-                    break;
-                case 3:
-                    do {
-                        System.out.print("Enter your username: ");
-                        username = scanner.next();
-                        System.out.print("Enter your Password: ");
-                        password = scanner.next();
-
-                        valid = participant.login(username, password, Participant.getFilePath());
-                        //s1.surveyMenu();
-                    } while (!valid);
-                    break;
-
-                case 4:
-                    do {
-                        int role;
-                        do {
-                            try {
-                                System.out.println("1.Participants");
-                                System.out.println("2.Exhibitors");
-                                System.out.print("Select account to register(1-2): ");
-                                role = scanner.nextInt();
-                                break; // Break the loop if valid input is provided
-                            } catch (InputMismatchException e) {
-                                System.out.println("Invalid input. Please enter number only.\n");
-                                scanner.nextLine(); // Clear the input buffer
-                            }
-                        } while (true);
-
-                        System.out.print("Enter the username: ");
-                        username = scanner.next();
-                        System.out.print("Enter the password: ");
-                        password = scanner.next();
-                        if (role == 1) {
-                            valid = participant.participantRegistration(username, password);
-                        } else if (role == 2) {
-                            valid = exhibitor.exhibitorRegistration(username, password);
-                        } else {
-                            System.out.println("Invalid role selection. Enter 1 or 2 only.");
-                            valid = false;
-                        }
-                    } while (!valid);
-                    break;
-                default:
-                    System.out.println("Please enter 1 - 4 only");
-                    break;
+                
+                // Rest of your code...
             }
             System.out.print("Press Y to exit, N to stay: ");
-            String exitChoice = scanner.next().toLowerCase(); // Convert the input to lowercase
+            String exitChoice = scanner.next().toLowerCase();
 
             if (exitChoice.equals("y")) {
                 exit = true;
