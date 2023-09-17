@@ -1,95 +1,35 @@
-import java.io.*;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Scanner;
 
 public class Participant extends User {
 
-    private static Set<String> registeredCombinations = new HashSet<>();
     private static final String PARTICIPANT_FILE = "Participant.txt";
 
     public Participant() {
+        super();
+        createFileIfNotExists(PARTICIPANT_FILE);
     }
 
     public Participant(String username, String password) {
         super(username, password);
+        createFileIfNotExists(PARTICIPANT_FILE);
+    }
+
+    public static String getFilePath() {
+        return PARTICIPANT_FILE;
     }
 
     public boolean participantRegistration(String username, String password) {
-        String combination = username + password;
 
-        // Ensure the text file exists or create it if it doesn't
-        createParticipantFileIfNotExists();
-
-        // Check for duplicates in the text file
-        if (checkForDuplicate(username, password)) {
+        if (checkDuplicate(PARTICIPANT_FILE, username, password)) {
             System.out.println("Username and password combination already registered.\n");
             return false;
         }
 
-        registeredCombinations.add(combination);
-        saveParticipantData(username, password);
+        saveData(PARTICIPANT_FILE, username, password);
 
         System.out.println("Participant account registered successfully!");
         return true;
     }
 
-    public boolean participantLogin(String username, String password) {
-    // Check if the "Participant.txt" file exists
-    File file = new File(PARTICIPANT_FILE);
-    if (!file.exists()) {
-        System.out.println("Login failed. Please try again.\n");
-        return false;
-    }
+    // Method to check if the file exists and create it if it doesn't
 
-    // Check if the entered credentials exist in the "Participant.txt" file
-    if (checkForDuplicate(username, password)) {
-        System.out.println("Login Successful.");
-        return true;
-        // Additional functionality here
-    } else {
-        System.out.println("Login failed. Please try again.\n");
-        return false;
-    }
-}
-    // Method to ensure the "Participant.txt" file exists or create it if it doesn't
-    private static void createParticipantFileIfNotExists() {
-        File file = new File(PARTICIPANT_FILE);
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    // Method to check for duplicate combinations in the "Participant.txt" file
-    private static boolean checkForDuplicate(String enteredUsername, String enteredPassword) {
-        try (Scanner scanner = new Scanner(new File(PARTICIPANT_FILE))) {
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                String[] parts = line.split(" ");
-                if (parts.length == 2) {
-                    String fileUsername = parts[0];
-                    String filePassword = parts[1];
-                    if (enteredUsername.equals(fileUsername) && enteredPassword.equals(filePassword)) {
-                        return true; // Combination already exists
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false; // Combination does not exist
-    }
-
-    // Method to save participant data to the "Participant.txt" text file
-    private static void saveParticipantData(String username, String password) {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(PARTICIPANT_FILE, true))) {
-            writer.println(username + " " + password);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }
