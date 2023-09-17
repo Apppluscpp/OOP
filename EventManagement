@@ -24,34 +24,33 @@ public class EventManagement {
     }
 
     public boolean validateDate(String startDateString, String endDateString) {
-    try {
-        Date startDate = dateFormat.parse(startDateString);
-        Date endDate = dateFormat.parse(endDateString);
+        try {
+            Date startDate = dateFormat.parse(startDateString);
+            Date endDate = dateFormat.parse(endDateString);
 
-        // Get the current date
-        Date currentDate = new Date();
+            // Get the current date
+            Date currentDate = new Date();
 
-        // Calculate the difference in days between the parsed start date and the current date
-        long diffInDaysStart = TimeUnit.DAYS.convert(startDate.getTime() - currentDate.getTime(), TimeUnit.MILLISECONDS);
+            // Calculate the difference in days between the parsed start date and the current date
+            long diffInDaysStart = TimeUnit.DAYS.convert(startDate.getTime() - currentDate.getTime(), TimeUnit.MILLISECONDS);
 
-        // Calculate the difference in days between the parsed end date and the start date
-        long diffInDaysEnd = TimeUnit.DAYS.convert(endDate.getTime() - startDate.getTime(), TimeUnit.MILLISECONDS);
+            // Calculate the difference in days between the parsed end date and the start date
+            long diffInDaysEnd = TimeUnit.DAYS.convert(endDate.getTime() - startDate.getTime(), TimeUnit.MILLISECONDS);
 
-        if (diffInDaysStart >= 2 && diffInDaysEnd >= 0) {
-            return true;
-        } else {
-            System.out.println("Invalid date. The start date must be at least 3 days more than the current date, "
-                    + "and the end date must be the same as or later than the start date.");
+            if (diffInDaysStart >= 2 && diffInDaysEnd >= 0) {
+                return true;
+            } else {
+                System.out.println("Invalid date. The start date must be at least 2 days more than the current date, "
+                        + "and the end date must be the same as or later than the start date.");
+                return false;
+            }
+        } catch (ParseException e) {
+            System.out.println("Invalid date format. Please use yyyy-MM-dd.");
             return false;
         }
-    } catch (ParseException e) {
-        System.out.println("Invalid date format. Please use yyyy-MM-dd.");
-        return false;
     }
-}
 
-
-    /*public boolean validateTime(String startTimeString, String endTimeString) {
+    public boolean validateTime(String startTimeString, String endTimeString) {
         try {
             timeFormat.setLenient(false); // Disallow lenient parsing
             startTime = timeFormat.parse(startTimeString);
@@ -59,7 +58,7 @@ public class EventManagement {
 
             // Check if the end time is greater than the start time
             if (endTime.after(startTime)) {
-                return true; // Set the flag to exit the loop
+                return true;
             } else {
                 System.out.println("Ending time must be greater than starting time.\n");
                 return false;
@@ -67,7 +66,6 @@ public class EventManagement {
         } catch (ParseException e) {
             System.out.println("Invalid time format. Please use 24-hour format.\n");
             return false;
-            // Handle the exception for invalid input.
         }
     }
 
@@ -80,7 +78,7 @@ public class EventManagement {
         }
     }
 
-    /*public void createPrograms(String startDateString, String endDateString) {
+    public void createPrograms(String startDateString, String endDateString, String startTimeString, String endTimeString) {
         try {
             Date startDate = dateFormat.parse(startDateString);
             Date endDate = dateFormat.parse(endDateString);
@@ -94,14 +92,11 @@ public class EventManagement {
             // Create an array to store program details for each day
             Program[] programs = new Program[numPrograms];
 
-            // Create a boolean array to track time slots availability
-            boolean[] timeSlotsAvailable = new boolean[24 * 60]; // 24 hours a day and 60 minutes per hour
-
             Scanner scanner = new Scanner(System.in);
 
             for (int i = 0; i < numPrograms; i++) {
-                String startTimeString = "";
-                String endTimeString = "";
+                String activityStartTime;
+                String activityEndTime;
                 boolean validTimeSlot = false;
 
                 System.out.println("\nProgram for Day " + (i + 1));
@@ -109,35 +104,34 @@ public class EventManagement {
                 // Prompt the user for a time slot
                 while (!validTimeSlot) {
                     System.out.print("Enter activity starting time (HHmm): ");
-                    startTimeString = scanner.next();
+                    activityStartTime = scanner.next();
                     System.out.print("Enter activity ending time (HHmm): ");
-                    endTimeString = scanner.next();
+                    activityEndTime = scanner.next();
 
                     // Validate the time slot
-                    if (validateTime(startTimeString, endTimeString)
-                            && isTimeSlotAvailable(timeSlotsAvailable, startTimeString, endTimeString)
-                            && isTimeSlotWithinEventTime(startDate, endDate, startTimeString, endTimeString)) {
-                        validTimeSlot = true;
-                        markTimeSlotAsUsed(timeSlotsAvailable, startTimeString, endTimeString);
-                    } else {
-                        System.out.println("Invalid time slot. Please try again.\n");
+                    if (validateTime(activityStartTime, activityEndTime)) {
+                        if (isTimeSlotWithinEventTime(startTimeString, endTimeString, activityStartTime, activityEndTime)) {
+                            validTimeSlot = true;
+                        } else {
+                            System.out.println("Please enter a time slot that is within the event time range.\n");
+                        }
                     }
                 }
 
                 // Prompt the user for an activity type
-                scanner.nextLine(); // Consume the newline character
+                /*scanner.nextLine(); // Consume the newline character
                 System.out.print("Enter activity type: ");
                 String activityType = scanner.nextLine().trim();
 
                 // Create a new program and store the details in the array
-                Program program = new Program(startTimeString, endTimeString, activityType);
+                Program program = new Program(activityStartTime, activityEndTime, activityType);
                 programs[i] = program;
 
                 System.out.println("Program " + (i + 1) + " details:");
                 System.out.println("Activity Type: " + program.getActivityType());
                 System.out.println("Start Time: " + program.getStartTime());
                 System.out.println("End Time: " + program.getEndTime());
-                System.out.println();
+                System.out.println();*/
             }
 
             // An array of programs for each day
@@ -147,16 +141,18 @@ public class EventManagement {
         }
     }
 
-// Helper method to check if a time slot is within the event's time range
-    private boolean isTimeSlotWithinEventTime(Date startDate, Date endDate, String startTimeString, String endTimeString) {
+    // Helper method to check if a time slot is within the event's time range
+    private boolean isTimeSlotWithinEventTime(String startTimeString, String endTimeString, String activityStartTimeString, String activityEndTimeString) {
         try {
-            Date startTime = timeFormat.parse(startTimeString);
-            Date endTime = timeFormat.parse(endTimeString);
+            Date eventStartTime = timeFormat.parse(startTimeString);
+            Date eventEndTime = timeFormat.parse(endTimeString);
+            Date activityStartTime = timeFormat.parse(activityStartTimeString);
+            Date activityEndTime = timeFormat.parse(activityEndTimeString);
 
             // Check if the activity start time is after or equal to the event start time
             // and the activity end time is before or equal to the event end time
-            if ((startTime.equals(startDate) || startTime.after(startDate))
-                    && (endTime.equals(endDate) || endTime.before(endDate))) {
+            if ((activityStartTime.equals(eventStartTime) || activityStartTime.after(eventStartTime))
+                    && (activityEndTime.equals(eventEndTime) || activityEndTime.before(eventEndTime))) {
                 return true;
             } else {
                 System.out.println("Activity time should be within the event time range.");
@@ -168,34 +164,4 @@ public class EventManagement {
         }
     }
 
-    // Helper method to check if a time slot is available
-    private boolean isTimeSlotAvailable(boolean[] timeSlotsAvailable, String startTimeString, String endTimeString) {
-        int startTime = convertTimeToMinutes(startTimeString);
-        int endTime = convertTimeToMinutes(endTimeString);
-
-        for (int i = startTime; i <= endTime; i++) {
-            if (timeSlotsAvailable[i]) {
-                return false; // Time slot is not available
-            }
-        }
-
-        return true; // Time slot is available
-    }
-
-// Helper method to mark a time slot as used
-    private void markTimeSlotAsUsed(boolean[] timeSlotsAvailable, String startTimeString, String endTimeString) {
-        int startTime = convertTimeToMinutes(startTimeString);
-        int endTime = convertTimeToMinutes(endTimeString);
-
-        for (int i = startTime; i <= endTime; i++) {
-            timeSlotsAvailable[i] = true; // Mark the time slot as used
-        }
-    }
-
-// Helper method to convert time in HHmm format to minutes since midnight
-    private int convertTimeToMinutes(String timeString) {
-        int hours = Integer.parseInt(timeString.substring(0, 2));
-        int minutes = Integer.parseInt(timeString.substring(2));
-        return hours * 60 + minutes;
-    }*/
 }
