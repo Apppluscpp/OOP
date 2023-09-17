@@ -1,7 +1,7 @@
 
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.InputMismatchException; // Import the InputMismatchException class
-import java.util.List;
 import java.util.Scanner;
 
 public class Test {
@@ -12,13 +12,11 @@ public class Test {
         String newUsername;
         String newPassword;
         boolean exit = false;
-        boolean valid = false;
+        boolean valid;
         int loginChoice;
         int adminChoice;
 
         Scanner scanner = new Scanner(System.in);
-        List<Participant> participants = new ArrayList<>();
-        List<Exhibitor> exhibitors = new ArrayList<>();
 
         Admin admin = new Admin();
         Exhibitor exhibitor = new Exhibitor();
@@ -49,11 +47,64 @@ public class Test {
                         System.out.print("Enter your Password: ");
                         password = scanner.next();
 
-                        valid = admin.login(username, password,Admin.getFilePath());
+                        valid = admin.login(username, password, Admin.getFilePath());
                         if (valid) {
                             m1.mainMenu();
                             adminChoice = scanner.nextInt();
+                            scanner.nextLine();
                             switch (adminChoice) {
+                                case 1:
+                                    String startDateString;
+                                    String endDateString;
+                                    String startTimeString;
+                                    String endTimeString;
+
+                                    do {
+                                        //System.out.println(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+                                        System.out.print("Enter starting date (yyyy-MM-dd): ");
+                                        startDateString = scanner.next();
+
+                                        System.out.print("Enter ending date (yyyy-MM-dd): ");
+                                        endDateString = scanner.next();
+
+                                        valid = m1.validateDate(startDateString, endDateString);
+
+                                    } while (!valid);
+
+                                    //System.out.println("Entered date: " + dateFormat.format(date));
+                                    /*
+                                    do {
+                                        System.out.print("Enter starting time (HHmm): ");
+                                        startTimeString = scanner.next();
+
+                                        System.out.print("Enter ending time (HHmm): ");
+                                        endTimeString = scanner.next();
+
+                                        valid = m1.validateTime(startTimeString, endTimeString);
+                                    } while (!valid);
+
+                                    do {
+                                        System.out.print("Enter venue (Alphabetic characters only): ");
+                                        String venue = scanner.next().trim(); // Trim leading/trailing spaces
+                                        valid = m1.validateAlpha(venue);
+                                    } while (!valid);
+
+                                    do {
+                                        System.out.print("Enter industry (Alphabetic characters only): ");
+                                        String industry = scanner.next().trim(); // Trim leading/trailing spaces
+                                        valid = m1.validateAlpha(industry);
+                                    } while (!valid);
+
+                                    do {
+                                        System.out.print("Enter title (Alphabetic characters only): ");
+                                        String title = scanner.next().trim(); // Trim leading/trailing spaces
+                                        valid = m1.validateAlpha(title);
+                                    } while (!valid);
+
+                                    //m1.createPrograms(startDateString, endDateString);
+                                    System.out.println("Broke.");*/
+                                    break;
+
                                 case 5:
                                     System.out.print("Enter new username: ");
                                     newUsername = scanner.next();
@@ -61,6 +112,9 @@ public class Test {
                                     newPassword = scanner.next();
 
                                     admin.adminUpdate(username, password, newUsername, newPassword);
+
+                                case 6:
+                                    System.exit(0);
 
                                 default:
                                     System.out.println("Please enter 1 - 6 only");
@@ -76,7 +130,7 @@ public class Test {
                         System.out.print("Enter your Password: ");
                         password = scanner.next();
 
-                        valid = exhibitor.login(username, password,Exhibitor.getFilePath());
+                        valid = exhibitor.login(username, password, Exhibitor.getFilePath());
 
                     } while (!valid);
                     break;
@@ -87,7 +141,7 @@ public class Test {
                         System.out.print("Enter your Password: ");
                         password = scanner.next();
 
-                        valid = participant.login(username, password,Participant.getFilePath());
+                        valid = participant.login(username, password, Participant.getFilePath());
                         //s1.surveyMenu();
                     } while (!valid);
                     break;
