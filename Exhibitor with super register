@@ -1,0 +1,23 @@
+
+public class Exhibitor extends User {
+
+    private static final String EXHIBITOR_FILE = "Exhibitor.txt";
+
+    public Exhibitor() {
+        super();
+        createFileIfNotExists(EXHIBITOR_FILE);
+    }
+
+    public Exhibitor(String username, String password) {
+        super(username, password);
+        createFileIfNotExists(EXHIBITOR_FILE);
+    }
+
+    public static String getFilePath() {
+        return EXHIBITOR_FILE;
+    }
+
+    public boolean exhibitorRegistration(String username, String password) {
+        return register(EXHIBITOR_FILE, username, password);
+    }
+}
