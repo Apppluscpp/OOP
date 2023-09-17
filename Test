@@ -71,8 +71,6 @@ public class Test {
 
                                     } while (!valid);
 
-                                    //System.out.println("Entered date: " + dateFormat.format(date));
-                                    /*
                                     do {
                                         System.out.print("Enter starting time (HHmm): ");
                                         startTimeString = scanner.next();
@@ -82,7 +80,7 @@ public class Test {
 
                                         valid = m1.validateTime(startTimeString, endTimeString);
                                     } while (!valid);
-
+                                    
                                     do {
                                         System.out.print("Enter venue (Alphabetic characters only): ");
                                         String venue = scanner.next().trim(); // Trim leading/trailing spaces
@@ -101,8 +99,7 @@ public class Test {
                                         valid = m1.validateAlpha(title);
                                     } while (!valid);
 
-                                    //m1.createPrograms(startDateString, endDateString);
-                                    System.out.println("Broke.");*/
+                                    m1.createPrograms(startDateString, endDateString, startTimeString, endTimeString);
                                     break;
 
                                 case 5:
