@@ -1,8 +1,7 @@
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Scanner;
+import java.io.*;
+import java.util.*;
+import java.text.*;
 import java.util.concurrent.TimeUnit;
 
 public class EventManagement {
@@ -14,10 +13,21 @@ public class EventManagement {
     private String venue;
     private String industry;
     private String title;
-    private static int eventCount = 101;
+    private int eventCount;
     private String eventID;
 
     public EventManagement() {
+        if (!eventCounterFileExists()) {
+            createEventCounterFile(1);
+        }
+        initializeEventCount();
+    }
+
+    public EventManagement(String industryCode) {
+        if (!eventCounterFileExists()) {
+            createEventCounterFile(1);
+        }
+        initializeEventCount();
     }
 
     public String getStartDateString() {
@@ -64,10 +74,6 @@ public class EventManagement {
         return industry;
     }
 
-    public void setIndustry(String industry) {
-        this.industry = industry;
-    }
-
     public String getTitle() {
         return title;
     }
@@ -77,7 +83,7 @@ public class EventManagement {
         eventCount++;
     }
 
-    public static int getEventCount() {
+    public int getEventCount() {
         return eventCount;
     }
 
@@ -137,6 +143,100 @@ public class EventManagement {
         return eventID;
     }
 
+    private boolean eventCounterFileExists() {
+        File eventCounterFile = new File("eventCounter.txt");
+        return eventCounterFile.exists();
+    }
+
+    private void createEventCounterFile(int initialValue) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("eventCounter.txt"))) {
+            writer.write(Integer.toString(initialValue));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private int readEventCountFromFile() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("eventCounter.txt"))) {
+            String line = reader.readLine();
+            if (line != null) {
+                return Integer.parseInt(line);
+            }
+        } catch (IOException | NumberFormatException e) {
+            e.printStackTrace();
+        }
+        return 1; // Default event count if file doesn't exist or is corrupted
+    }
+
+    private void writeEventCountToFile(int eventCount) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("eventCounter.txt"))) {
+            writer.write(Integer.toString(eventCount));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveEventToFile() {
+        int currentEventCount = readEventCountFromFile();
+
+        // Check if the industry code is set (assuming it's a non-empty string)
+        if (industry != null && !industry.isEmpty()) {
+            String industryCode;
+
+            // Convert the industry to an industry code
+            switch (industry) {
+                case "Food and Beverage":
+                    industryCode = "FB";
+                    break;
+                case "Technology and Electronics":
+                    industryCode = "TE";
+                    break;
+                case "Tourism and Travel":
+                    industryCode = "TT";
+                    break;
+                case "Houseware and Home Products":
+                    industryCode = "HH";
+                    break;
+                case "Fashion and Apparel":
+                    industryCode = "FA";
+                    break;
+                default:
+                    industryCode = "UNK"; // Unknown industry code
+                    break;
+            }
+
+            String eventFileName = industryCode + currentEventCount + ".txt";
+
+            // Check if the event file already exists
+            File eventFile = new File(eventFileName);
+            if (eventFile.exists()) {
+                System.out.println("Event file " + eventFileName + " already exists. Please choose a different event title.");
+                return;
+            }
+
+            try (FileWriter writer = new FileWriter(eventFileName)) {
+                writer.write(toString());
+                System.out.println("Event details saved to " + eventFileName);
+
+                // Increment event count and update the eventCounter.txt file
+                currentEventCount++;
+                writeEventCountToFile(currentEventCount);
+            } catch (IOException e) {
+                System.out.println("Failed to save event details to file.");
+            }
+        } else {
+            System.out.println("Industry is not set. Please set the industry before saving the event.");
+        }
+    }
+
+    public void setIndustry(String industry) {
+        this.industry = industry;
+    }
+
+    public void initializeEventCount() {
+        eventCount = readEventCountFromFile();
+    }
+
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private SimpleDateFormat timeFormat = new SimpleDateFormat("HHmm");
     private Date startTime = null;
@@ -179,9 +279,11 @@ public class EventManagement {
             long diffInDaysEnd = TimeUnit.DAYS.convert(endDate.getTime() - startDate.getTime(), TimeUnit.MILLISECONDS);
 
             if (diffInDaysStart >= 2 && diffInDaysEnd >= 0) {
+                setStartDateString(startDateString);
+                setEndDateString(endDateString);
                 return true;
             } else {
-                System.out.println("Invalid date. The start date must be at least 2 days more than the current date, "
+                System.out.println("Invalid date. The start date must be at least 3 days more than the current date, "
                         + "and the end date must be the same as or later than the start date.");
                 return false;
             }
@@ -199,6 +301,8 @@ public class EventManagement {
 
             // Check if the end time is greater than the start time
             if (getEndTime().after(getStartTime())) {
+                setStartTimeString(startTimeString);
+                setEndTimeString(endTimeString);
                 return true;
             } else {
                 System.out.println("Ending time must be greater than starting time.\n");
