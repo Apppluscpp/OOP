@@ -7,10 +7,142 @@ import java.util.concurrent.TimeUnit;
 
 public class EventManagement {
 
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    SimpleDateFormat timeFormat = new SimpleDateFormat("HHmm");
-    Date startTime = null;
-    Date endTime = null;
+    private String startDateString;
+    private String endDateString;
+    private String startTimeString;
+    private String endTimeString;
+    private String venue;
+    private String industry;
+    private String title;
+    private static int eventCount = 101;
+    private String eventID;
+
+    public EventManagement() {
+    }
+
+    public String getStartDateString() {
+        return startDateString;
+    }
+
+    public void setStartDateString(String startDateString) {
+        this.startDateString = startDateString;
+    }
+
+    public String getEndDateString() {
+        return endDateString;
+    }
+
+    public void setEndDateString(String endDateString) {
+        this.endDateString = endDateString;
+    }
+
+    public String getStartTimeString() {
+        return startTimeString;
+    }
+
+    public void setStartTimeString(String startTimeString) {
+        this.startTimeString = startTimeString;
+    }
+
+    public String getEndTimeString() {
+        return endTimeString;
+    }
+
+    public void setEndTimeString(String endTimeString) {
+        this.endTimeString = endTimeString;
+    }
+
+    public String getVenue() {
+        return venue;
+    }
+
+    public void setVenue(String venue) {
+        this.venue = venue;
+    }
+
+    public String getIndustry() {
+        return industry;
+    }
+
+    public void setIndustry(String industry) {
+        this.industry = industry;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+        eventCount++;
+    }
+
+    public static int getEventCount() {
+        return eventCount;
+    }
+
+    public SimpleDateFormat getDateFormat() {
+        return dateFormat;
+    }
+
+    public void setDateFormat(SimpleDateFormat dateFormat) {
+        this.dateFormat = dateFormat;
+    }
+
+    public SimpleDateFormat getTimeFormat() {
+        return timeFormat;
+    }
+
+    public void setTimeFormat(SimpleDateFormat timeFormat) {
+        this.timeFormat = timeFormat;
+    }
+
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
+    }
+
+    public String getActivityStartTime() {
+        return activityStartTime;
+    }
+
+    public void setActivityStartTime(String activityStartTime) {
+        this.activityStartTime = activityStartTime;
+    }
+
+    public String getActivityEndTime() {
+        return activityEndTime;
+    }
+
+    public void setActivityEndTime(String activityEndTime) {
+        this.activityEndTime = activityEndTime;
+    }
+
+    public void setEventId(String eventID) {
+        this.eventID = eventID;
+    }
+
+    public String getEventId() {
+        return eventID;
+    }
+
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private SimpleDateFormat timeFormat = new SimpleDateFormat("HHmm");
+    private Date startTime = null;
+    private Date endTime = null;
+    private String activityStartTime;
+    private String activityEndTime;
 
     public void mainMenu() {
         System.out.println("\n\t\tWelcome Admin!!!\n");
@@ -23,10 +155,19 @@ public class EventManagement {
         System.out.print("Enter your selection(1 - 6): ");
     }
 
+    public void industryMenu() {
+        System.out.println("\n1.Food and Beverage");
+        System.out.println("2.Technology and Electronics");
+        System.out.println("3.Tourism and Travel");
+        System.out.println("4.Houseware and Home Products");
+        System.out.println("5.Fashion and Apparel");
+        System.out.print("Enter industry(1 - 5): ");
+    }
+
     public boolean validateDate(String startDateString, String endDateString) {
         try {
-            Date startDate = dateFormat.parse(startDateString);
-            Date endDate = dateFormat.parse(endDateString);
+            Date startDate = getDateFormat().parse(startDateString);
+            Date endDate = getDateFormat().parse(endDateString);
 
             // Get the current date
             Date currentDate = new Date();
@@ -52,12 +193,12 @@ public class EventManagement {
 
     public boolean validateTime(String startTimeString, String endTimeString) {
         try {
-            timeFormat.setLenient(false); // Disallow lenient parsing
-            startTime = timeFormat.parse(startTimeString);
-            endTime = timeFormat.parse(endTimeString);
+            getTimeFormat().setLenient(false); // Disallow lenient parsing
+            setStartTime(getTimeFormat().parse(startTimeString));
+            setEndTime(getTimeFormat().parse(endTimeString));
 
             // Check if the end time is greater than the start time
-            if (endTime.after(startTime)) {
+            if (getEndTime().after(getStartTime())) {
                 return true;
             } else {
                 System.out.println("Ending time must be greater than starting time.\n");
@@ -78,90 +219,18 @@ public class EventManagement {
         }
     }
 
-    public void createPrograms(String startDateString, String endDateString, String startTimeString, String endTimeString) {
-        try {
-            Date startDate = dateFormat.parse(startDateString);
-            Date endDate = dateFormat.parse(endDateString);
-
-            long diffInMillies = Math.abs(endDate.getTime() - startDate.getTime());
-            long daysDifference = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-
-            // The number of programs is equal to the number of days
-            int numPrograms = (int) daysDifference + 1;
-
-            // Create an array to store program details for each day
-            Program[] programs = new Program[numPrograms];
-
-            Scanner scanner = new Scanner(System.in);
-
-            for (int i = 0; i < numPrograms; i++) {
-                String activityStartTime;
-                String activityEndTime;
-                boolean validTimeSlot = false;
-
-                System.out.println("\nProgram for Day " + (i + 1));
-
-                // Prompt the user for a time slot
-                while (!validTimeSlot) {
-                    System.out.print("Enter activity starting time (HHmm): ");
-                    activityStartTime = scanner.next();
-                    System.out.print("Enter activity ending time (HHmm): ");
-                    activityEndTime = scanner.next();
-
-                    // Validate the time slot
-                    if (validateTime(activityStartTime, activityEndTime)) {
-                        if (isTimeSlotWithinEventTime(startTimeString, endTimeString, activityStartTime, activityEndTime)) {
-                            validTimeSlot = true;
-                        } else {
-                            System.out.println("Please enter a time slot that is within the event time range.\n");
-                        }
-                    }
-                }
-
-                // Prompt the user for an activity type
-                /*scanner.nextLine(); // Consume the newline character
-                System.out.print("Enter activity type: ");
-                String activityType = scanner.nextLine().trim();
-
-                // Create a new program and store the details in the array
-                Program program = new Program(activityStartTime, activityEndTime, activityType);
-                programs[i] = program;
-
-                System.out.println("Program " + (i + 1) + " details:");
-                System.out.println("Activity Type: " + program.getActivityType());
-                System.out.println("Start Time: " + program.getStartTime());
-                System.out.println("End Time: " + program.getEndTime());
-                System.out.println();*/
-            }
-
-            // An array of programs for each day
-            // You can access program details using programs[index]
-        } catch (ParseException e) {
-            System.out.println("Invalid date format. Please use yyyy-MM-dd.\n");
-        }
-    }
-
-    // Helper method to check if a time slot is within the event's time range
-    private boolean isTimeSlotWithinEventTime(String startTimeString, String endTimeString, String activityStartTimeString, String activityEndTimeString) {
-        try {
-            Date eventStartTime = timeFormat.parse(startTimeString);
-            Date eventEndTime = timeFormat.parse(endTimeString);
-            Date activityStartTime = timeFormat.parse(activityStartTimeString);
-            Date activityEndTime = timeFormat.parse(activityEndTimeString);
-
-            // Check if the activity start time is after or equal to the event start time
-            // and the activity end time is before or equal to the event end time
-            if ((activityStartTime.equals(eventStartTime) || activityStartTime.after(eventStartTime))
-                    && (activityEndTime.equals(eventEndTime) || activityEndTime.before(eventEndTime))) {
-                return true;
-            } else {
-                System.out.println("Activity time should be within the event time range.");
-                return false;
-            }
-        } catch (ParseException e) {
-            // Handle the exception for invalid time format.
-            return false;
-        }
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\nEvent Details:\n");
+        sb.append("Event ID: ").append(getEventId()).append("\n");
+        sb.append("Title: ").append(getTitle()).append("\n");
+        sb.append("Date: ").append(getStartDateString()).append(" to ").append(getEndDateString()).append("\n");
+        sb.append("Time: ").append(getStartTimeString()).append(" to ").append(getEndTimeString()).append("\n");
+        sb.append("Venue: ").append(getVenue()).append("\n");
+        sb.append("Industry: ").append(getIndustry()).append("\n");
+        // Add more details here if needed
+        return sb.toString();
     }
 
 }
