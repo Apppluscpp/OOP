@@ -1,0 +1,141 @@
+
+import java.util.ArrayList;
+import java.util.InputMismatchException; // Import the InputMismatchException class
+import java.util.List;
+import java.util.Scanner;
+
+public class Test {
+
+    public static void main(String[] args) {
+        String username;
+        String password;
+        String newUsername;
+        String newPassword;
+        boolean exit = false;
+        boolean valid = false;
+        int loginChoice;
+        int adminChoice;
+
+        Scanner scanner = new Scanner(System.in);
+        List<Participant> participants = new ArrayList<>();
+        List<Exhibitor> exhibitors = new ArrayList<>();
+
+        Admin admin = new Admin();
+        Exhibitor exhibitor = new Exhibitor();
+        Participant participant = new Participant();
+        EventManagement m1 = new EventManagement();
+        EventParticipation p1 = new EventParticipation();
+        EventSurvey s1 = new EventSurvey();
+
+        while (!exit) {
+            System.out.println("\t\t***Welcome to the Login Page***\n");
+            do {
+                try {
+                    admin.welcomePage();
+                    System.out.print("Enter your login choice(1 - 4): ");
+                    loginChoice = scanner.nextInt();
+                    break; // Break the loop if valid input is provided
+                } catch (InputMismatchException e) {
+                    System.out.println("Invalid input. Please enter number only\n");
+                    scanner.nextLine(); // Clear the input buffer
+                }
+            } while (true);
+
+            switch (loginChoice) {
+                case 1:
+                    do {
+                        System.out.print("Enter your username: ");
+                        username = scanner.next();
+                        System.out.print("Enter your Password: ");
+                        password = scanner.next();
+
+                        valid = admin.login(username, password,Admin.getFilePath());
+                        if (valid) {
+                            m1.mainMenu();
+                            adminChoice = scanner.nextInt();
+                            switch (adminChoice) {
+                                case 5:
+                                    System.out.print("Enter new username: ");
+                                    newUsername = scanner.next();
+                                    System.out.print("Enter new Password: ");
+                                    newPassword = scanner.next();
+
+                                    admin.adminUpdate(username, password, newUsername, newPassword);
+
+                                default:
+                                    System.out.println("Please enter 1 - 6 only");
+                                    break;
+                            }
+                        }
+                    } while (!valid);
+                    break;
+                case 2:
+                    do {
+                        System.out.print("Enter your username: ");
+                        username = scanner.next();
+                        System.out.print("Enter your Password: ");
+                        password = scanner.next();
+
+                        valid = exhibitor.login(username, password,Exhibitor.getFilePath());
+
+                    } while (!valid);
+                    break;
+                case 3:
+                    do {
+                        System.out.print("Enter your username: ");
+                        username = scanner.next();
+                        System.out.print("Enter your Password: ");
+                        password = scanner.next();
+
+                        valid = participant.login(username, password,Participant.getFilePath());
+                        //s1.surveyMenu();
+                    } while (!valid);
+                    break;
+
+                case 4:
+                    do {
+                        int role;
+                        do {
+                            try {
+                                System.out.println("1.Participants");
+                                System.out.println("2.Exhibitors");
+                                System.out.print("Select account to register(1-2): ");
+                                role = scanner.nextInt();
+                                break; // Break the loop if valid input is provided
+                            } catch (InputMismatchException e) {
+                                System.out.println("Invalid input. Please enter number only.\n");
+                                scanner.nextLine(); // Clear the input buffer
+                            }
+                        } while (true);
+
+                        System.out.print("Enter the username: ");
+                        username = scanner.next();
+                        System.out.print("Enter the password: ");
+                        password = scanner.next();
+                        if (role == 1) {
+                            valid = participant.participantRegistration(username, password);
+                        } else if (role == 2) {
+                            valid = exhibitor.exhibitorRegistration(username, password);
+                        } else {
+                            System.out.println("Invalid role selection. Enter 1 or 2 only.");
+                            valid = false;
+                        }
+                    } while (!valid);
+                    break;
+                default:
+                    System.out.println("Please enter 1 - 4 only");
+                    break;
+            }
+            System.out.print("Press Y to exit, N to stay: ");
+            String exitChoice = scanner.next().toLowerCase(); // Convert the input to lowercase
+
+            if (exitChoice.equals("y")) {
+                exit = true;
+            } else if (exitChoice.equals("n")) {
+                // No need to do anything, the loop will continue
+            } else {
+                System.out.println("Invalid choice. Please enter 'Y' or 'N'.");
+            }
+        }
+    }
+}
