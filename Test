@@ -1,6 +1,4 @@
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.InputMismatchException; // Import the InputMismatchException class
 import java.util.Scanner;
 
@@ -15,6 +13,7 @@ public class Test {
         boolean valid;
         int loginChoice;
         int adminChoice;
+        String title;
 
         Scanner scanner = new Scanner(System.in);
 
@@ -56,8 +55,11 @@ public class Test {
                                 case 1:
                                     String startDateString;
                                     String endDateString;
-                                    String startTimeString;
-                                    String endTimeString;
+                                    String startTimeString = "";
+                                    String endTimeString = "";
+                                    String venue = "";
+                                    String industry = "";
+                                    String eventID = "";
 
                                     do {
                                         //System.out.println(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
@@ -70,7 +72,8 @@ public class Test {
                                         valid = m1.validateDate(startDateString, endDateString);
 
                                     } while (!valid);
-
+                                    m1.setStartDateString(startDateString);
+                                    m1.setEndDateString(endDateString);
                                     do {
                                         System.out.print("Enter starting time (HHmm): ");
                                         startTimeString = scanner.next();
@@ -80,26 +83,74 @@ public class Test {
 
                                         valid = m1.validateTime(startTimeString, endTimeString);
                                     } while (!valid);
-                                    
-                                    do {
-                                        System.out.print("Enter venue (Alphabetic characters only): ");
-                                        String venue = scanner.next().trim(); // Trim leading/trailing spaces
-                                        valid = m1.validateAlpha(venue);
-                                    } while (!valid);
+                                    m1.setStartTimeString(startTimeString);
+                                    m1.setEndTimeString(endTimeString);
 
                                     do {
-                                        System.out.print("Enter industry (Alphabetic characters only): ");
-                                        String industry = scanner.next().trim(); // Trim leading/trailing spaces
-                                        valid = m1.validateAlpha(industry);
+                                        System.out.print("Enter venue (Alphabetic characters only): ");
+                                        venue = scanner.next().trim(); // Trim leading/trailing spaces
+                                        valid = m1.validateAlpha(venue);
                                     } while (!valid);
+                                    m1.setVenue(venue);
+
+                                    valid = false;
+                                    do {
+                                        try {
+                                            m1.industryMenu();
+                                            int industryChoice = scanner.nextInt(); // Read the user's choice
+                                            scanner.nextLine(); // Consume the newline character
+                                            switch (industryChoice) {
+                                                case 1:
+                                                    industry = "Food and Beverage";
+                                                    eventID = "FB" + m1.getEventCount();
+                                                    valid = true;
+                                                    break;
+                                                case 2:
+                                                    industry = "Technology and Electronics";
+                                                    eventID = "TE" + m1.getEventCount();
+
+                                                    valid = true;
+                                                    break;
+                                                case 3:
+                                                    industry = "Tourism and Travel";
+                                                    eventID = "TT" + m1.getEventCount();
+
+                                                    valid = true;
+                                                    break;
+                                                case 4:
+                                                    industry = "Houseware and Home Products";
+                                                    eventID = "HH" + m1.getEventCount();
+
+                                                    valid = true;
+                                                    break;
+                                                case 5:
+                                                    industry = "Fashion and Apparel";
+                                                    eventID = "FA" + m1.getEventCount();
+
+                                                    valid = true;
+                                                    break;
+                                                default:
+                                                    System.out.println("Please enter 1 - 5 only");
+                                                    break;
+                                            }
+                                        } catch (InputMismatchException e) {
+                                            System.out.println("Invalid input. Please enter an integer only.");
+                                            scanner.nextLine(); // Clear the invalid input
+                                        }
+                                    } while (!valid);
+
+                                    m1.setIndustry(industry);
+                                    m1.setEventId(eventID);
 
                                     do {
                                         System.out.print("Enter title (Alphabetic characters only): ");
-                                        String title = scanner.next().trim(); // Trim leading/trailing spaces
+                                        title = scanner.next().trim(); // Trim leading/trailing spaces
                                         valid = m1.validateAlpha(title);
                                     } while (!valid);
+                                    m1.setTitle(title);
 
-                                    m1.createPrograms(startDateString, endDateString, startTimeString, endTimeString);
+                                    System.out.println(m1);
+
                                     break;
 
                                 case 5:
