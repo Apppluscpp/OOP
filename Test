@@ -36,7 +36,7 @@ public class Test {
                     loginChoice = scanner.nextInt();
                     break; // Break the loop if valid input is provided
                 } catch (InputMismatchException e) {
-                    System.out.println("Invalid input. Please enter a valid choice.\n");
+                    System.out.println("Invalid input. Please enter number only\n");
                     scanner.nextLine(); // Clear the input buffer
                 }
             } while (true);
@@ -49,7 +49,7 @@ public class Test {
                         System.out.print("Enter your Password: ");
                         password = scanner.next();
 
-                        valid = admin.adminLogin(username, password);
+                        valid = admin.login(username, password,Admin.getFilePath());
                         if (valid) {
                             m1.mainMenu();
                             adminChoice = scanner.nextInt();
@@ -59,8 +59,12 @@ public class Test {
                                     newUsername = scanner.next();
                                     System.out.print("Enter new Password: ");
                                     newPassword = scanner.next();
-                                    
+
                                     admin.adminUpdate(username, password, newUsername, newPassword);
+
+                                default:
+                                    System.out.println("Please enter 1 - 6 only");
+                                    break;
                             }
                         }
                     } while (!valid);
@@ -72,7 +76,7 @@ public class Test {
                         System.out.print("Enter your Password: ");
                         password = scanner.next();
 
-                        valid = exhibitor.exhibitorLogin(username, password);
+                        valid = exhibitor.login(username, password,Exhibitor.getFilePath());
 
                     } while (!valid);
                     break;
@@ -83,7 +87,7 @@ public class Test {
                         System.out.print("Enter your Password: ");
                         password = scanner.next();
 
-                        valid = participant.participantLogin(username, password);
+                        valid = participant.login(username, password,Participant.getFilePath());
                         //s1.surveyMenu();
                     } while (!valid);
                     break;
@@ -99,7 +103,7 @@ public class Test {
                                 role = scanner.nextInt();
                                 break; // Break the loop if valid input is provided
                             } catch (InputMismatchException e) {
-                                System.out.println("Invalid input. Please enter a valid choice.\n");
+                                System.out.println("Invalid input. Please enter number only.\n");
                                 scanner.nextLine(); // Clear the input buffer
                             }
                         } while (true);
@@ -113,7 +117,7 @@ public class Test {
                         } else if (role == 2) {
                             valid = exhibitor.exhibitorRegistration(username, password);
                         } else {
-                            System.out.println("Invalid role selection.");
+                            System.out.println("Invalid role selection. Enter 1 or 2 only.");
                             valid = false;
                         }
                     } while (!valid);
