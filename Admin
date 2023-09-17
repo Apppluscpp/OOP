@@ -1,31 +1,23 @@
 
 import java.io.*;
-import java.util.Scanner;
 
 public class Admin extends User {
 
     private static final String ADMIN_FILE = "Admin.txt"; // File to store admin credentials
 
     public Admin() {
-        // Check if the admin file exists; if not, create it with default credentials
-        if (!adminFileExists()) {
-            createAdminFile("abc", "123");
-        }
+        super();
+        createFileIfNotExists(ADMIN_FILE);
+        insertDefaultCredentials(ADMIN_FILE, "abc", "123"); // Insert default credentials
     }
 
     public Admin(String username, String password) {
         super(username, password);
+        createFileIfNotExists(ADMIN_FILE);
     }
 
-    public boolean adminLogin(String enteredUsername, String enteredPassword) {
-        // Check if the entered credentials match those in the file
-        if (checkCredentials(enteredUsername, enteredPassword)) {
-            System.out.println("Login Successful.");
-            return true;
-        } else {
-            System.out.println("Login failed. Please try again.\n");
-            return false;
-        }
+    public static String getFilePath() {
+        return ADMIN_FILE;
     }
 
     public void adminMenu() {
@@ -35,7 +27,7 @@ public class Admin extends User {
         System.out.println("3. Modify Event");
         System.out.println("4. Delete Event");
         System.out.println("5. Update Profile");
-        System.out.println("6. Logout\n");
+        System.out.println("5. Logout\n");
     }
 
     public void adminUpdate(String username, String password, String newUsername, String newPassword) {
@@ -44,44 +36,7 @@ public class Admin extends User {
             // Insert the new credentials into the "Admin.txt" file
             insertCredentials(newUsername, newPassword);
             System.out.println("Profile updated successfully.");
-        } else {
-            System.out.println("Failed to update profile. Invalid username or password.");
         }
-    }
-
-    // Method to check if the "Admin.txt" file exists
-    private boolean adminFileExists() {
-        File file = new File(ADMIN_FILE);
-        return file.exists();
-    }
-
-    // Method to create the "Admin.txt" file with default admin credentials
-    private void createAdminFile(String defaultUsername, String defaultPassword) {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(ADMIN_FILE))) {
-            writer.println(defaultUsername + " " + defaultPassword);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Method to check if the entered credentials match the data in the "Admin.txt" file
-    private boolean checkCredentials(String enteredUsername, String enteredPassword) {
-        try (Scanner scanner = new Scanner(new File(ADMIN_FILE))) {
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                String[] parts = line.split(" ");
-                if (parts.length == 2) {
-                    String fileUsername = parts[0];
-                    String filePassword = parts[1];
-                    if (enteredUsername.equals(fileUsername) && enteredPassword.equals(filePassword)) {
-                        return true; // Credentials match
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false; // Credentials do not match
     }
 
     // Method to remove credentials from the "Admin.txt" file
@@ -130,6 +85,16 @@ public class Admin extends User {
             writer.println(newUsername + " " + newPassword);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void insertDefaultCredentials(String filePath, String defaultUsername, String defaultPassword) {
+        if (!checkDuplicate(filePath, defaultUsername, defaultPassword)) {
+            try (PrintWriter writer = new PrintWriter(new FileWriter(filePath, true))) {
+                writer.println(defaultUsername + " " + defaultPassword);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
