@@ -78,21 +78,9 @@ public class Test {
                                         valid = m1.validateTime(startTimeString, endTimeString);
                                     } while (!valid);
 
-                                    do {
-                                        System.out.print("Enter venue (Alphabetic characters only): ");
-                                        venue = scanner.next().trim();
-                                        valid = m1.validateAlpha(venue);
-                                    } while (!valid);
-                                    m1.setVenue(venue);
-
+                                    m1.setVenue();
                                     m1.setIndustry();
-
-                                    do {
-                                        System.out.print("Enter title (Alphabetic characters only): ");
-                                        title = scanner.next().trim();
-                                        valid = m1.validateAlpha(title);
-                                    } while (!valid);
-                                    m1.setTitle(title);
+                                    m1.setTitle();
                                     m1.saveEventToFile();
 
                                     System.out.println(m1);
@@ -101,33 +89,15 @@ public class Test {
 
                                 case 4:
                                     // Update Event
-                                    do {
-                                        System.out.print("Enter event ID: ");
-                                        eventId = scanner.next();
-                                        valid = m1.validateEventFile(eventId);
-                                        if (!valid) {
-                                            System.out.println("Event file with ID " + eventId + " does not exist. Please enter a valid event ID.");
-                                        }
-                                    } while (!valid);
-                                    m1.updateMenu();
-                                    int updateChoice = scanner.nextInt();
-                                    boolean updated = m1.update(updateChoice, eventId);
-                                    if (updated) {
-                                    } else {
-                                        System.out.println("Event update failed.");
-                                    }
+                                    eventId = m1.validateEventFile();
+                                    m1.update(eventId);
                                     break;
 
                                 case 5:
                                     // Delete Event
-                                    do {
-                                        System.out.print("Enter event ID to be deleted: ");
-                                        eventId = scanner.next();
-                                        valid = m1.validateEventFile(eventId);
-                                        if (!valid) {
-                                            System.out.println("Event file with ID " + eventId + " does not exist. Please enter a valid event ID.");
-                                        }
-                                    } while (!valid);
+                                    System.out.print("Enter event ID to be deleted: ");
+                                    eventId = m1.validateEventFile();
+
                                     //Add confirmation msg(Joey) *if yes then run the deleteEvent method*
                                     m1.deleteEvent(eventId);
                                     break;
