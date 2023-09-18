@@ -3,6 +3,7 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.concurrent.TimeUnit;
+import java.nio.file.*;
 
 public class EventManagement {
 
@@ -15,6 +16,9 @@ public class EventManagement {
     private String title;
     private int eventCount;
     private String eventID;
+    private String industryCode;
+
+    Scanner scanner = new Scanner(System.in);
 
     public EventManagement() {
         if (!eventCounterFileExists()) {
@@ -176,71 +180,55 @@ public class EventManagement {
         }
     }
 
+    public boolean validateEventFile(String eventId) {
+
+        int eventNumber = extractEventNumber(eventId);
+
+        // Define the filename based on the eventID
+        String eventFileName = "Event" + eventNumber + ".txt";
+
+        File eventFile = new File(eventFileName);
+        if (!eventFile.exists()) {
+            return false;
+        }
+        return true;
+    }
+
     public void saveEventToFile() {
         int currentEventCount = readEventCountFromFile();
 
-        // Check if the industry code is set (assuming it's a non-empty string)
-        if (industry != null && !industry.isEmpty()) {
-            String industryCode;
+        // Update the eventCount before setting the eventId and eventFileName
+        currentEventCount++;
 
-            // Convert the industry to an industry code
-            switch (industry) {
-                case "Food and Beverage":
-                    industryCode = "FB";
-                    break;
-                case "Technology and Electronics":
-                    industryCode = "TE";
-                    break;
-                case "Tourism and Travel":
-                    industryCode = "TT";
-                    break;
-                case "Houseware and Home Products":
-                    industryCode = "HH";
-                    break;
-                case "Fashion and Apparel":
-                    industryCode = "FA";
-                    break;
-                default:
-                    industryCode = "UNK"; // Unknown industry code
-                    break;
-            }
+        setEventId("EVT" + currentEventCount);
 
-            setEventId(industryCode + currentEventCount);
+        String eventFileName = "Event" + currentEventCount + ".txt";
 
-            String eventFileName = industryCode + currentEventCount + ".txt";
-
-            // Check if the event file already exists
-            File eventFile = new File(eventFileName);
-            if (eventFile.exists()) {
-                System.out.println("Event file " + eventFileName + " already exists. Please choose a different event title.");
-                return;
-            }
-
-            try (FileWriter writer = new FileWriter(eventFileName)) {
-                writer.write(toString());
-                System.out.println("Event details saved to " + eventFileName);
-
-                // Increment event count and update the eventCounter.txt file
-                currentEventCount++;
-                writeEventCountToFile(currentEventCount);
-            } catch (IOException e) {
-                System.out.println("Failed to save event details to file.");
-            }
-        } else {
-            System.out.println("Industry is not set. Please set the industry before saving the event.");
+        // Check if the event file already exists
+        File eventFile = new File(eventFileName);
+        if (eventFile.exists()) {
+            System.out.println("Event file " + eventFileName + " already exists. Please choose a different event title.");
+            return;
         }
-    }
 
-    public void setIndustry(String industry) {
-        this.industry = industry;
+        try (FileWriter writer = new FileWriter(eventFileName)) {
+            writer.write(toString());
+            // Increment event count and update the eventCounter.txt file
+            currentEventCount++;
+            writeEventCountToFile(currentEventCount);
+            System.out.println("\nEvent details saved to " + eventFileName);
+
+        } catch (IOException e) {
+            System.out.println("Failed to save event details to file.");
+        }
+
     }
 
     public void initializeEventCount() {
         eventCount = readEventCountFromFile();
     }
 
-    public boolean update(String eventID, int choice) {
-        Scanner scanner = new Scanner(System.in);
+    public boolean update(int choice, String eventId) {
 
         // Define keywords to search for based on the choice
         String[] keywords = {
@@ -257,14 +245,9 @@ public class EventManagement {
             return false;
         }
 
-        // Define the filename based on the eventID
-        String eventFileName = eventID + ".txt";
+        int eventNumber = extractEventNumber(eventId);
 
-        File eventFile = new File(eventFileName);
-        if (!eventFile.exists()) {
-            System.out.println("Event file with ID " + eventID + " does not exist.");
-            return false;
-        }
+        String eventFileName = "Event" + eventNumber + ".txt";
 
         try (BufferedReader fileReader = new BufferedReader(new FileReader(eventFileName))) {
             // Read the file contents into a list of lines
@@ -276,59 +259,25 @@ public class EventManagement {
 
             // Find and remove the line with the specified keyword
             String keyword = keywords[choice - 1];
-            boolean found = false;
-            boolean valid = false;
+            List<Integer> linesToUpdate = new ArrayList<>(); // Store the line numbers to update
+
             for (int i = 0; i < lines.size(); i++) {
                 if (lines.get(i).contains(keyword)) {
-                    // Remove the line containing the keyword
-                    lines.remove(i);
-                    found = true;
-                    break;
+                    linesToUpdate.add(i); // Add the line number to the list of lines to update
                 }
             }
 
-            if (!found) {
+            if (linesToUpdate.isEmpty()) {
                 System.out.println("Keyword not found in the event file.");
                 return false;
             }
 
+            boolean valid = false;
             // Prompt the user for the new value
             String newValue = "";
             if (keyword == "Industry") {
-                industryMenu();
-                int updateChoice = scanner.nextInt();
-
-                do {
-                    try {
-                        industryMenu();
-                        int industryChoice = scanner.nextInt();
-                        scanner.nextLine();
-                        switch (industryChoice) {
-                            case 1:
-                                industry = "Food and Beverage";
-                                break;
-                            case 2:
-                                industry = "Technology and Electronics";
-                                break;
-                            case 3:
-                                industry = "Tourism and Travel";
-                                break;
-                            case 4:
-                                industry = "Houseware and Home Products";
-                                break;
-                            case 5:
-                                industry = "Fashion and Apparel";
-                                break;
-                            default:
-                                System.out.println("Please enter 1 - 5 only");
-                                break;
-                        }
-                    } catch (InputMismatchException e) {
-                        System.out.println("Invalid input. Please enter an integer only.");
-                        scanner.nextLine();
-                    }
-                } while (!valid);
-
+                setIndustry();
+                newValue = industry;
             } else if (keyword == "Date") {
                 do {
                     System.out.print("Enter starting date (yyyy-MM-dd): ");
@@ -361,11 +310,10 @@ public class EventManagement {
                 newValue = text;
             }
 
-            // Create the updated line with the new value
-            String updatedLine = keyword + ": " + newValue;
-
-            // Insert the updated line back into the list
-            lines.add(updatedLine);
+            // Update the lines in the list
+            for (Integer lineIndex : linesToUpdate) {
+                lines.set(lineIndex, keyword + ": " + newValue);
+            }
 
             // Write the updated list of lines back to the file
             try (BufferedWriter fileWriter = new BufferedWriter(new FileWriter(eventFileName))) {
@@ -374,14 +322,76 @@ public class EventManagement {
                     fileWriter.newLine();
                 }
                 System.out.println(keyword + " updated successfully.");
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("Failed to update the event file.");
+                return false;
             }
+
+            // Close the fileReader before renaming
+            fileReader.close();
+
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Failed to update the event file.");
             return false;
         }
-
         return true;
+    }
+
+    private int extractEventNumber(String eventId) {
+        // Extract and parse the event number from the event ID
+        String numberStr = eventId.replaceAll("\\D+", "");
+        try {
+            return Integer.parseInt(numberStr);
+        } catch (NumberFormatException e) {
+            // Handle parsing error, e.g., if the eventId doesn't contain a valid number
+            return -1; // You can choose an appropriate default or error value
+        }
+    }
+
+    public void setIndustry() {
+        do {
+            try {
+                industryMenu();
+                int industryChoice = scanner.nextInt();
+                scanner.nextLine();
+                switch (industryChoice) {
+                    case 1:
+                        industry = "Food and Beverage";
+                        break;
+                    case 2:
+                        industry = "Technology and Electronics";
+                        break;
+                    case 3:
+                        industry = "Tourism and Travel";
+                        break;
+                    case 4:
+                        industry = "Houseware and Home Products";
+                        break;
+                    case 5:
+                        industry = "Fashion and Apparel";
+                        break;
+                    default:
+                        System.out.println("Please enter 1 - 5 only");
+                        break;
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter an integer only.");
+                scanner.nextLine();
+            }
+        } while (industry.isEmpty());
+        this.industry = industry;
+    }
+
+    public void deleteEvent(String eventId) {
+        String eventFileName = eventId + ".txt";
+        File eventFile = new File(eventFileName);
+        if (eventFile.delete()) {
+            System.out.println("Event with ID " + eventId + " has been deleted.");
+        } else {
+            System.out.println("Failed to delete the event file with ID " + eventId);
+        }
     }
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
