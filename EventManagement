@@ -332,7 +332,6 @@ public class EventManagement {
             e.printStackTrace();
             System.out.println("Failed to update the event file.");
         }
-        System.out.println("Event update failed.");
     }
 
     private int extractEventNumber(String eventId) {
@@ -349,7 +348,7 @@ public class EventManagement {
     public void setVenue() {
         do {
             System.out.print("Enter venue (Alphabetic characters only): ");
-            venue = scanner.next().trim();
+            venue = scanner.nextLine().trim(); // Use nextLine() to consume the entire line
             valid = validateAlpha(venue);
         } while (!valid);
 
@@ -359,7 +358,7 @@ public class EventManagement {
     public void setTitle() {
         do {
             System.out.print("Enter title (Alphabetic characters only): ");
-            title = scanner.next().trim();
+            title = scanner.nextLine().trim();
             valid = validateAlpha(title);
         } while (!valid);
         this.title = title;
@@ -399,8 +398,11 @@ public class EventManagement {
         this.industry = industry;
     }
 
-    public void deleteEvent(String eventId) {
-        String eventFileName = eventId + ".txt";
+    public void deleteEvent(String id) {
+
+        int eventNumber = extractEventNumber(eventId);
+
+        String eventFileName = "Event" + eventNumber + ".txt";
         File eventFile = new File(eventFileName);
         if (eventFile.delete()) {
             System.out.println("Event with ID " + eventId + " has been deleted.");
@@ -497,8 +499,8 @@ public class EventManagement {
     }
 
     public boolean validateAlpha(String input) {
-        if (!input.matches("^[a-zA-Z]+$")) {
-            System.out.println("Invalid input. Please use only alphabetic characters.\n");
+        if (!input.matches("^[a-zA-Z ]+$")) {
+            System.out.println("Invalid input. Please use only alphabetic characters and spaces.\n");
             return false;
         } else {
             return true;
