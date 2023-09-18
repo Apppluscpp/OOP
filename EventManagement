@@ -3,7 +3,6 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.concurrent.TimeUnit;
-import java.nio.file.*;
 
 public class EventManagement {
 
@@ -16,7 +15,8 @@ public class EventManagement {
     private String title;
     private int eventCount;
     private String eventID;
-    private String industryCode;
+    private boolean valid;
+    private String eventId;
 
     Scanner scanner = new Scanner(System.in);
 
@@ -70,21 +70,12 @@ public class EventManagement {
         return venue;
     }
 
-    public void setVenue(String venue) {
-        this.venue = venue;
-    }
-
     public String getIndustry() {
         return industry;
     }
 
     public String getTitle() {
         return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-        eventCount++;
     }
 
     public int getEventCount() {
@@ -180,18 +171,25 @@ public class EventManagement {
         }
     }
 
-    public boolean validateEventFile(String eventId) {
+    public String validateEventFile() {
+        valid = false;
+        do {
+            System.out.print("Enter event ID: ");
+            eventId = scanner.next();
 
-        int eventNumber = extractEventNumber(eventId);
+            int eventNumber = extractEventNumber(eventId);
 
-        // Define the filename based on the eventID
-        String eventFileName = "Event" + eventNumber + ".txt";
+            // Define the filename based on the eventID
+            String eventFileName = "Event" + eventNumber + ".txt";
 
-        File eventFile = new File(eventFileName);
-        if (!eventFile.exists()) {
-            return false;
-        }
-        return true;
+            File eventFile = new File(eventFileName);
+            if (!eventFile.exists()) {
+                System.out.println("Event file with ID " + eventId + " does not exist. Please enter a valid event ID.");
+            } else {
+                valid = true;
+            }
+        } while (!valid);
+        return eventId;
     }
 
     public void saveEventToFile() {
@@ -228,8 +226,8 @@ public class EventManagement {
         eventCount = readEventCountFromFile();
     }
 
-    public boolean update(int choice, String eventId) {
-
+    public void update(String eventId) {
+        int choice;
         // Define keywords to search for based on the choice
         String[] keywords = {
             "Date",
@@ -240,10 +238,16 @@ public class EventManagement {
         };
 
         // Validate choice
-        if (choice < 1 || choice > keywords.length) {
-            System.out.println("Invalid choice.");
-            return false;
-        }
+        valid = false;
+        do {
+            updateMenu();
+            choice = scanner.nextInt();
+            if (choice < 1 || choice > keywords.length) {
+                System.out.println("Invalid choice. Please enter again.");
+            } else {
+                valid = true;
+            }
+        } while (!valid);
 
         int eventNumber = extractEventNumber(eventId);
 
@@ -266,12 +270,6 @@ public class EventManagement {
                     linesToUpdate.add(i); // Add the line number to the list of lines to update
                 }
             }
-
-            if (linesToUpdate.isEmpty()) {
-                System.out.println("Keyword not found in the event file.");
-                return false;
-            }
-
             boolean valid = false;
             // Prompt the user for the new value
             String newValue = "";
@@ -325,7 +323,6 @@ public class EventManagement {
             } catch (IOException e) {
                 e.printStackTrace();
                 System.out.println("Failed to update the event file.");
-                return false;
             }
 
             // Close the fileReader before renaming
@@ -334,9 +331,8 @@ public class EventManagement {
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Failed to update the event file.");
-            return false;
         }
-        return true;
+        System.out.println("Event update failed.");
     }
 
     private int extractEventNumber(String eventId) {
@@ -348,6 +344,25 @@ public class EventManagement {
             // Handle parsing error, e.g., if the eventId doesn't contain a valid number
             return -1; // You can choose an appropriate default or error value
         }
+    }
+
+    public void setVenue() {
+        do {
+            System.out.print("Enter venue (Alphabetic characters only): ");
+            venue = scanner.next().trim();
+            valid = validateAlpha(venue);
+        } while (!valid);
+
+        this.venue = venue;
+    }
+
+    public void setTitle() {
+        do {
+            System.out.print("Enter title (Alphabetic characters only): ");
+            title = scanner.next().trim();
+            valid = validateAlpha(title);
+        } while (!valid);
+        this.title = title;
     }
 
     public void setIndustry() {
