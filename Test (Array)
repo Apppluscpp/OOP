@@ -1,0 +1,292 @@
+
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
+public class Test {
+
+    public static void main(String[] args) {
+        String username;
+        String password;
+        String newUsername;
+        String newPassword;
+
+        boolean exit = false;
+        boolean valid;
+        int loginChoice;
+        int adminChoice;
+        String title;
+        String eventId;
+        int loginAttempt = 0;
+
+        int MAX_EVENTS = 100; // Maximum number of events
+
+        Scanner scanner = new Scanner(System.in);
+
+        Admin admin = new Admin();
+        Exhibitor exhibitor = new Exhibitor();
+        Participant participant = new Participant();
+        EventManagement m1 = new EventManagement();
+
+        while (!exit && loginAttempt < 3) {
+            System.out.println("\t\t***Welcome to the Login Page***\n");
+            do {
+                try {
+                    admin.welcomePage();
+                    System.out.print("Enter your login choice(1 - 4): ");
+                    loginChoice = scanner.nextInt();
+                    break;
+                } catch (InputMismatchException e) {
+                    System.out.println("Invalid input. Please enter a number only\n");
+                    scanner.nextLine();
+                }
+            } while (true);
+
+            switch (loginChoice) {
+                case 1:
+                    int eventCount = m1.readEventCountFromFile();
+
+                    Event[] eventArray = new Event[MAX_EVENTS]; // Array to store Event objects
+                    eventArray[eventCount] = new Event();
+                    do {
+                        System.out.print("Enter your username: ");
+                        username = scanner.next();
+                        System.out.print("Enter your Password: ");
+                        password = scanner.next();
+
+                        valid = admin.login(username, password, Admin.getFilePath());
+                        if (valid) {
+                            loginAttempt = 0;
+                            m1.mainMenu();
+                            adminChoice = scanner.nextInt();
+                            scanner.nextLine();
+                            switch (adminChoice) {
+                                case 1:
+                                    String startDateString;
+                                    String endDateString;
+                                    String startTimeString = "";
+                                    String endTimeString = "";
+                                    String venue = "";
+                                    String industry = "";
+                                    String eventID = "";
+
+                                    do {
+                                        System.out.print("\nEnter starting date (yyyy-MM-dd): ");
+                                        startDateString = scanner.next();
+                                        System.out.print("Enter ending date (yyyy-MM-dd): ");
+                                        endDateString = scanner.next();
+
+                                        valid = m1.validateDate(startDateString, endDateString);
+
+                                    } while (!valid);
+                                    eventArray[eventCount].setStartDateString(startDateString);
+                                    eventArray[eventCount].setEndDateString(endDateString);
+                                    do {
+                                        System.out.print("Enter starting time (24-hour format): ");
+                                        startTimeString = scanner.next();
+                                        System.out.print("Enter ending time (24-hour format): ");
+                                        endTimeString = scanner.next();
+
+                                        valid = m1.validateTime(startTimeString, endTimeString);
+
+                                    } while (!valid);
+                                    eventArray[eventCount].setStartTimeString(startTimeString);
+                                    eventArray[eventCount].setEndTimeString(endTimeString);
+
+                                    do {
+                                        System.out.print("Enter venue: ");
+                                        venue = scanner.next();
+
+                                        valid = m1.validateAlpha(venue);
+
+                                    } while (!valid);
+
+                                    eventArray[eventCount].setVenue(venue);
+
+                                    valid = true;
+                                    do {
+                                        try {
+                                            m1.industryMenu();
+                                            int industryChoice = scanner.nextInt();
+                                            scanner.nextLine();
+                                            switch (industryChoice) {
+                                                case 1:
+                                                    eventArray[eventCount].setIndustry("Food and Beverage");
+                                                    break;
+                                                case 2:
+                                                    eventArray[eventCount].setIndustry("Technology and Electronics");
+                                                    break;
+                                                case 3:
+                                                    eventArray[eventCount].setIndustry("Tourism and Travel");
+                                                    break;
+                                                case 4:
+                                                    eventArray[eventCount].setIndustry("Houseware and Home Products");
+                                                    break;
+                                                case 5:
+                                                    eventArray[eventCount].setIndustry("Fashion and Apparel");
+                                                    break;
+                                                default:
+                                                    System.out.println("Please enter 1 - 5 only");
+                                                    valid = false;
+                                                    break;
+                                            }
+                                        } catch (InputMismatchException e) {
+                                            System.out.println("Invalid input. Please enter an integer only.");
+                                            scanner.nextLine();
+                                        }
+                                    } while (!valid);
+
+                                    do {
+                                        System.out.print("Enter title: ");
+                                        title = scanner.next();
+
+                                        valid = m1.validateAlpha(title);
+
+                                    } while (!valid);
+                                    eventArray[eventCount].setTitle(title);
+
+                                    eventArray[eventCount].setEventId("EVT" + eventCount);
+
+                                    String eventFileName = "Event" + eventCount + ".txt";
+
+                                    String eventDetails = eventArray[eventCount].toString();
+
+                                    m1.saveEventToFile(eventFileName, eventDetails);
+                                    System.out.print(eventArray[eventCount]);
+
+                                    break;
+
+                                /*case 4:
+                                    // Update Event
+                                    eventId = m1.validateEventFile();
+                                    // Find the Event object in the array by eventId and update it
+                                    /*for (int i = 0; i < eventCount; i++) {
+                                        if (events[i].getEventId().equals(eventId)) {
+                                            m1.updateEvent(events[i]);
+                                            break;
+                                        }
+                                    }
+                                    break;
+
+                                case 5:
+                                    // Delete Event
+                                    eventId = m1.validateEventFile();
+
+                                    // Find the Event object in the array by eventId and delete it
+                                    for (int i = 0; i < eventCount; i++) {
+                                        if (events[i].getEventId().equals(eventId)) {
+                                            System.out.println("Deleting event with ID: " + eventId);
+                                            events[i] = null; // Mark the event as deleted
+                                            break;
+                                        }
+                                    }
+                                    break;*/
+                                case 6:
+                                    //Update Profile
+                                    System.out.print("Enter new username: ");
+                                    newUsername = scanner.next();
+                                    System.out.print("Enter new Password: ");
+                                    newPassword = scanner.next();
+
+                                    admin.adminUpdate(username, password, newUsername, newPassword);
+
+                                    break;
+
+                                //log out
+                                case 7:
+                                    System.exit(0);
+
+                                default:
+                                    System.out.println("Please enter 1 - 6 only");
+                                    break;
+                            }
+                            break;
+                        } else {
+                            loginAttempt++;
+                        }
+                    } while (!valid && loginAttempt < 3);
+                    break;
+
+                case 2:
+                    do {
+                        System.out.print("Enter your username: ");
+                        username = scanner.next();
+                        System.out.print("Enter your Password: ");
+                        password = scanner.next();
+
+                        valid = exhibitor.login(username, password, Exhibitor.getFilePath());
+                        if (valid) {
+                            loginAttempt = 0;
+                            break;
+                        } else {
+                            loginAttempt++;
+                        }
+                    } while (!valid && loginAttempt < 3);
+                    break;
+                case 3:
+                    do {
+                        System.out.print("Enter your username: ");
+                        username = scanner.next();
+                        System.out.print("Enter your Password: ");
+                        password = scanner.next();
+
+                        valid = participant.login(username, password, Participant.getFilePath());
+                        if (valid) {
+                            loginAttempt = 0;
+                            break;
+                        } else {
+                            loginAttempt++;
+                        }
+                        //s1.surveyMenu();
+                    } while (!valid && loginAttempt < 3);
+                    break;
+
+                case 4:
+                    do {
+                        int role;
+                        do {
+                            try {
+                                System.out.println("1.Participants");
+                                System.out.println("2.Exhibitors");
+                                System.out.print("Select account to register(1-2): ");
+                                role = scanner.nextInt();
+                                break; // Break the loop if valid input is provided
+                            } catch (InputMismatchException e) {
+                                System.out.println("Invalid input. Please enter number only.\n");
+                                scanner.nextLine(); // Clear the input buffer
+                            }
+                        } while (true);
+
+                        System.out.print("Enter the username: ");
+                        username = scanner.next();
+                        System.out.print("Enter the password: ");
+                        password = scanner.next();
+                        if (role == 1) {
+                            valid = participant.participantRegistration(username, password);
+                        } else if (role == 2) {
+                            valid = exhibitor.exhibitorRegistration(username, password);
+                        } else {
+                            System.out.println("Invalid role selection. Enter 1 or 2 only.");
+                            valid = false;
+                        }
+                    } while (!valid);
+                    break;
+                default:
+                    System.out.println("Please enter 1 - 4 only");
+                    break;
+            }
+            System.out.print("Press Y to exit, N to stay: ");
+            String exitChoice = scanner.next().toLowerCase(); // Convert the input to lowercase
+
+            if (exitChoice.equals("y")) {
+                exit = true;
+            } else if (exitChoice.equals("n")) {
+                // No need to do anything, the loop will continue
+            } else {
+                System.out.println("Invalid choice. Please enter 'Y' or 'N'.");
+            }
+        }
+        if (loginAttempt == 3) {
+            System.out.println("Too many login. Please try again later.");
+        }
+    }
+}
