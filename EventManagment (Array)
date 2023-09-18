@@ -1,0 +1,401 @@
+//Handle user interaction, validation, File operations, add, edit, delete file 
+
+import java.io.*;
+import java.util.*;
+import java.text.*;
+import java.util.concurrent.TimeUnit;
+
+public class EventManagement {
+
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private SimpleDateFormat timeFormat = new SimpleDateFormat("HHmm");
+    private String eventId;
+    private boolean valid;
+
+    Scanner scanner = new Scanner(System.in);
+
+    private Event[] event; // Array to store Event objects
+    private int MAX_EVENTS = 100; // Maximum number of events
+
+    private int eventCount;
+
+    public EventManagement() {
+        if (!eventCounterFileExists()) {
+            createEventCounterFile(1);
+        }
+        initializeEventCount();
+        event = new Event[MAX_EVENTS];
+        //event = new Event[MAX_EVENTS];
+    }
+
+    public int getEventCount() {
+        return eventCount;
+    }
+
+    public SimpleDateFormat getDateFormat() {
+        return dateFormat;
+    }
+
+    public SimpleDateFormat getTimeFormat() {
+        return timeFormat;
+    }
+
+    public void setDateFormat(SimpleDateFormat dateFormat) {
+        this.dateFormat = dateFormat;
+    }
+
+    public void setTimeFormat(SimpleDateFormat timeFormat) {
+        this.timeFormat = timeFormat;
+    }
+
+    public void mainMenu() {
+        System.out.println("\n\t\tWelcome Admin!!!\n");
+        System.out.println("1.Create Event");
+        System.out.println("2.View Event");
+        System.out.println("3.Search Event");
+        System.out.println("4.Update Event");
+        System.out.println("5.Delete Event");
+        System.out.println("6.Update Profile");
+        System.out.println("7.Logout\n");
+        System.out.print("Enter your selection(1 - 6): ");
+    }
+
+    public void industryMenu() {
+        System.out.println("\n1.Food and Beverage");
+        System.out.println("2.Technology and Electronics");
+        System.out.println("3.Tourism and Travel");
+        System.out.println("4.Houseware and Home Products");
+        System.out.println("5.Fashion and Apparel");
+        System.out.print("Enter industry(1 - 5): ");
+    }
+
+    public void updateMenu() {
+        System.out.println("\n1.Date");
+        System.out.println("2.Time");
+        System.out.println("3.Venue");
+        System.out.println("4.Industry");
+        System.out.println("5.Title");
+        System.out.print("Enter selection(1 - 5): ");
+    }
+
+    public boolean validateDate(String startDateString, String endDateString) {
+        try {
+            Date startDate = getDateFormat().parse(startDateString);
+            Date endDate = getDateFormat().parse(endDateString);
+
+            // Get the current date
+            Date currentDate = new Date();
+
+            // Calculate the difference in days between the parsed start date and the current date
+            long diffInDaysStart = TimeUnit.DAYS.convert(startDate.getTime() - currentDate.getTime(), TimeUnit.MILLISECONDS);
+
+            // Calculate the difference in days between the parsed end date and the start date
+            long diffInDaysEnd = TimeUnit.DAYS.convert(endDate.getTime() - startDate.getTime(), TimeUnit.MILLISECONDS);
+
+            if (diffInDaysStart >= 2 && diffInDaysEnd >= 0) {
+
+                return true;
+            } else {
+                System.out.println("Invalid date. The start date must be at least 3 days more than the current date, ");
+                return false;
+            }
+        } catch (ParseException e) {
+            System.out.println("Invalid date format. Please use yyyy-MM-dd.");
+            return false;
+        }
+    }
+
+    public boolean validateTime(String startTimeString, String endTimeString) {
+        try {
+            getTimeFormat().setLenient(false); // Disallow lenient parsing
+            Date startTime = getTimeFormat().parse(startTimeString);
+            Date endTime = getTimeFormat().parse(endTimeString);
+
+            // Check if the end time is greater than the start time
+            if (startTime.compareTo(endTime) < 0) {
+
+                return true;
+            } else {
+                System.out.println("Ending time must be greater than starting time.\n");
+                return false;
+            }
+        } catch (ParseException e) {
+            System.out.println("Invalid time format. Please use 24-hour format.\n");
+            return false;
+        }
+    }
+
+    public boolean validateAlpha(String input) {
+        if (!input.matches("^[a-zA-Z ]+$")) {
+            System.out.println("Invalid input. Please use only alphabetic characters and spaces.\n");
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private boolean eventCounterFileExists() {
+        File eventCounterFile = new File("eventCounter.txt");
+        return eventCounterFile.exists();
+    }
+
+    private void createEventCounterFile(int initialValue) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("eventCounter.txt"))) {
+            writer.write(Integer.toString(initialValue));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void initializeEventCount() {
+        eventCount = readEventCountFromFile();
+    }
+
+    public int readEventCountFromFile() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("eventCounter.txt"))) {
+            String line = reader.readLine();
+            if (line != null) {
+                return Integer.parseInt(line);
+            }
+        } catch (IOException | NumberFormatException e) {
+            e.printStackTrace();
+        }
+        return 1; // Default event count if file doesn't exist or is corrupted
+    }
+
+    public void initializeEventArray() {
+        Event[] eventArray = new Event[MAX_EVENTS];
+        for (int i = 0; i < MAX_EVENTS; i++) {
+            eventArray[i] = new Event(); // Initialize each element with a new Event object
+        }
+    }
+
+    public void saveEventToFile(String eventFileName, String eventDetails) {
+        
+        int currentEventCount = readEventCountFromFile();
+
+        try (FileWriter writer = new FileWriter(eventFileName)) {
+            writer.write(eventDetails);
+            // Increment event count and update the eventCounter.txt file
+            currentEventCount++;
+            writeEventCountToFile(currentEventCount);
+            System.out.println("\nEvent details saved to " + eventFileName);
+
+        } catch (IOException e) {
+            System.out.println("Failed to save event details to file.");
+        }
+    }
+
+    private void writeEventCountToFile(int eventCount) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("eventCounter.txt"))) {
+            writer.write(Integer.toString(eventCount));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /*public void checkIndustry() {
+        valid = true;
+        do {
+            try {
+                industryMenu();
+                int industryChoice = scanner.nextInt();
+                scanner.nextLine();
+                switch (industryChoice) {
+                    case 1:
+                        event[eventCount].setIndustry("Food and Beverage");
+                        break;
+                    case 2:
+                        event[eventCount].setIndustry("Technology and Electronics");
+                        break;
+                    case 3:
+                        event[eventCount].setIndustry("Tourism and Travel");
+                        break;
+                    case 4:
+                        event[eventCount].setIndustry("Houseware and Home Products");
+                        break;
+                    case 5:
+                        event[eventCount].setIndustry("Fashion and Apparel");
+                        break;
+                    default:
+                        System.out.println("Please enter 1 - 5 only");
+                        valid = false;
+                        break;
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter an integer only.");
+                scanner.nextLine();
+            }
+        } while (!valid);
+    }*/
+
+ /*
+
+    public String validateEventFile() {
+        valid = false;
+        do {
+            System.out.print("Enter event ID: ");
+            eventId = scanner.next();
+
+            int eventNumber = extractEventNumber(eventId);
+
+            // Define the filename based on the eventID
+            String eventFileName = "Event" + eventNumber + ".txt";
+
+            File eventFile = new File(eventFileName);
+            if (!eventFile.exists()) {
+                System.out.println("Event file with ID " + eventId + " does not exist. Please enter a valid event ID.");
+            } else {
+                valid = true;
+            }
+        } while (!valid);
+        return eventId;
+    }
+
+    public void update(String eventId) {
+        int choice;
+        // Define keywords to search for based on the choice
+        String[] keywords = {
+            "Date",
+            "Time",
+            "Venue",
+            "Industry",
+            "Title"
+        };
+
+        // Validate choice
+        valid = false;
+        do {
+            updateMenu();
+            choice = scanner.nextInt();
+            if (choice < 1 || choice > keywords.length) {
+                System.out.println("Invalid choice. Please enter again.");
+            } else {
+                valid = true;
+            }
+        } while (!valid);
+
+        int eventNumber = extractEventNumber(eventId);
+
+        String eventFileName = "Event" + eventNumber + ".txt";
+
+        try (BufferedReader fileReader = new BufferedReader(new FileReader(eventFileName))) {
+            // Read the file contents into a list of lines
+            List<String> lines = new ArrayList<>();
+            String line;
+            while ((line = fileReader.readLine()) != null) {
+                lines.add(line);
+            }
+
+            // Find and remove the line with the specified keyword
+            String keyword = keywords[choice - 1];
+            List<Integer> linesToUpdate = new ArrayList<>(); // Store the line numbers to update
+
+            for (int i = 0; i < lines.size(); i++) {
+                if (lines.get(i).contains(keyword)) {
+                    linesToUpdate.add(i); // Add the line number to the list of lines to update
+                }
+            }
+            boolean valid = false;
+            // Prompt the user for the new value
+            String newValue = "";
+            if (keyword == "Industry") {
+                setIndustry();
+                newValue = industry;
+            } else if (keyword == "Date") {
+                do {
+                    System.out.print("Enter starting date (yyyy-MM-dd): ");
+                    startDateString = scanner.next();
+                    System.out.print("Enter ending date (yyyy-MM-dd): ");
+                    endDateString = scanner.next();
+
+                    valid = validateDate(startDateString, endDateString);
+
+                } while (!valid);
+                newValue = startDateString + " to " + endDateString;
+
+            } else if (keyword == "Time") {
+                do {
+                    System.out.print("Enter starting time (24-hour format): ");
+                    startTimeString = scanner.next();
+                    System.out.print("Enter ending time (24-hour format): ");
+                    endTimeString = scanner.next();
+
+                    valid = validateTime(startTimeString, endTimeString);
+                } while (!valid);
+                newValue = startTimeString + " to " + endTimeString;
+            } else {
+                String text;
+                do {
+                    System.out.print("Enter the new " + keyword + ": ");
+                    text = scanner.next().trim();
+                    valid = validateAlpha(text);
+                } while (!valid);
+                newValue = text;
+            }
+
+            // Update the lines in the list
+            for (Integer lineIndex : linesToUpdate) {
+                lines.set(lineIndex, keyword + ": " + newValue);
+            }
+
+            // Write the updated list of lines back to the file
+            try (BufferedWriter fileWriter = new BufferedWriter(new FileWriter(eventFileName))) {
+                for (String updated : lines) {
+                    fileWriter.write(updated);
+                    fileWriter.newLine();
+                }
+                System.out.println(keyword + " updated successfully.");
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("Failed to update the event file.");
+            }
+
+            // Close the fileReader before renaming
+            fileReader.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Failed to update the event file.");
+        }
+
+        /*for (int i = 0; i < eventCount; i++) {
+            if (events[i].getEventId().equals(eventId)) {
+                update(events[i]); // Pass the Event object to updateEvent
+                break;
+            }
+        }
+    }
+
+    private int extractEventNumber(String eventId) {
+        // Extract and parse the event number from the event ID
+        String numberStr = eventId.replaceAll("\\D+", "");
+        try {
+            return Integer.parseInt(numberStr);
+        } catch (NumberFormatException e) {
+            // Handle parsing error, e.g., if the eventId doesn't contain a valid number
+            return -1; // You can choose an appropriate default or error value
+        }
+    }
+
+    public void deleteEvent(String id) {
+
+        int eventNumber = extractEventNumber(eventId);
+
+        String eventFileName = "Event" + eventNumber + ".txt";
+        File eventFile = new File(eventFileName);
+        if (eventFile.delete()) {
+            System.out.println("Event with ID " + eventId + " has been deleted.");
+        } else {
+            System.out.println("Failed to delete the event file with ID " + eventId);
+        }
+        for (int i = 0; i < eventCount; i++) {
+            if (events[i].getEventId().equals(eventId)) {
+                System.out.println("Deleting event with ID: " + eventId);
+                events[i] = null; // Mark the event as deleted
+                break;
+            }
+        }
+
+    }*/
+}
