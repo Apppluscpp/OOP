@@ -15,6 +15,7 @@ public class Test {
         int adminChoice;
         String title;
         String eventId;
+        int loginAttempt = 0;
 
         Scanner scanner = new Scanner(System.in);
 
@@ -23,7 +24,7 @@ public class Test {
         Participant participant = new Participant();
         EventManagement m1 = new EventManagement();
 
-        while (!exit) {
+        while (!exit && loginAttempt < 3) {
             System.out.println("\t\t***Welcome to the Login Page***\n");
             do {
                 try {
@@ -47,6 +48,7 @@ public class Test {
 
                         valid = admin.login(username, password, Admin.getFilePath());
                         if (valid) {
+                            loginAttempt = 0;
                             m1.mainMenu();
                             adminChoice = scanner.nextInt();
                             scanner.nextLine();
@@ -95,7 +97,6 @@ public class Test {
 
                                 case 5:
                                     // Delete Event
-                                    System.out.print("Enter event ID to be deleted: ");
                                     eventId = m1.validateEventFile();
 
                                     //Add confirmation msg(Joey) *if yes then run the deleteEvent method*
@@ -121,8 +122,11 @@ public class Test {
                                     System.out.println("Please enter 1 - 6 only");
                                     break;
                             }
+                            break;
+                        } else {
+                            loginAttempt++;
                         }
-                    } while (!valid);
+                    } while (!valid && loginAttempt < 3);
                     break;
 
                 case 2:
@@ -133,8 +137,13 @@ public class Test {
                         password = scanner.next();
 
                         valid = exhibitor.login(username, password, Exhibitor.getFilePath());
-
-                    } while (!valid);
+                        if (valid) {
+                            loginAttempt = 0;
+                            break;
+                        } else {
+                            loginAttempt++;
+                        }
+                    } while (!valid && loginAttempt < 3);
                     break;
                 case 3:
                     do {
@@ -144,8 +153,14 @@ public class Test {
                         password = scanner.next();
 
                         valid = participant.login(username, password, Participant.getFilePath());
+                        if (valid) {
+                            loginAttempt = 0;
+                            break;
+                        } else {
+                            loginAttempt++;
+                        }
                         //s1.surveyMenu();
-                    } while (!valid);
+                    } while (!valid && loginAttempt < 3);
                     break;
 
                 case 4:
@@ -192,6 +207,9 @@ public class Test {
             } else {
                 System.out.println("Invalid choice. Please enter 'Y' or 'N'.");
             }
+        }
+        if(loginAttempt == 3){
+            System.out.println("Too many login. Please try again later.");
         }
     }
 }
