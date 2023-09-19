@@ -67,7 +67,6 @@ public class Test {
                                     String endTimeString = "";
                                     String venue = "";
                                     String industry = "";
-                                    String eventID = "";
 
                                     do {
                                         System.out.print("\nEnter starting date (yyyy-MM-dd): ");
@@ -155,31 +154,137 @@ public class Test {
 
                                     break;
 
-                                /*case 4:
+                                case 4:
                                     // Update Event
+                                    //Got the eventId
                                     eventId = m1.validateEventFile();
-                                    // Find the Event object in the array by eventId and update it
-                                    /*for (int i = 0; i < eventCount; i++) {
-                                        if (events[i].getEventId().equals(eventId)) {
-                                            m1.updateEvent(events[i]);
-                                            break;
+
+                                    String[] keywords = {
+                                        "Date",
+                                        "Time",
+                                        "Venue",
+                                        "Industry",
+                                        "Title"
+                                    };
+
+                                    // Validate choice
+                                    valid = false;
+                                    int choice;
+                                    do {
+                                        m1.updateMenu();
+                                        choice = scanner.nextInt();
+                                        if (choice < 1 || choice > keywords.length) {
+                                            System.out.println("Invalid choice. Please enter again.");
+                                        } else {
+                                            valid = true;
                                         }
+                                    } while (!valid);
+
+                                    String keyword = keywords[choice - 1];
+
+                                    String newValue = "";
+                                    if ("Industry".equals(keyword)) {
+                                        valid = true;
+                                        do {
+                                            try {
+                                                m1.industryMenu();
+                                                int industryChoice = scanner.nextInt();
+                                                scanner.nextLine();
+                                                switch (industryChoice) {
+                                                    case 1:
+                                                        eventArray[eventCount].setIndustry("Food and Beverage");
+                                                        newValue = "Food and Beverage";
+                                                        break;
+                                                    case 2:
+                                                        eventArray[eventCount].setIndustry("Technology and Electronics");
+                                                        newValue = "Technology and Electronics";
+
+                                                        break;
+                                                    case 3:
+                                                        eventArray[eventCount].setIndustry("Tourism and Travel");
+                                                        newValue = "Tourism and Travel";
+
+                                                        break;
+                                                    case 4:
+                                                        eventArray[eventCount].setIndustry("Houseware and Home Products");
+                                                        newValue = "Houseware and Home Products";
+
+                                                        break;
+                                                    case 5:
+                                                        eventArray[eventCount].setIndustry("Fashion and Apparel");
+                                                        newValue = "Fashion and Apparel";
+                                                        break;
+                                                    default:
+                                                        System.out.println("Please enter 1 - 5 only");
+                                                        valid = false;
+                                                        break;
+                                                }
+                                            } catch (InputMismatchException e) {
+                                                System.out.println("Invalid input. Please enter an integer only.");
+                                                scanner.nextLine();
+                                            }
+                                        } while (!valid);
+                                    } else if ("Date".equals(keyword)) {
+                                        do {
+                                            System.out.print("Enter starting date (yyyy-MM-dd): ");
+                                            startDateString = scanner.next();
+                                            System.out.print("Enter ending date (yyyy-MM-dd): ");
+                                            endDateString = scanner.next();
+                                            eventArray[eventCount].setStartDateString(startDateString);
+                                            eventArray[eventCount].setEndDateString(endDateString);
+                                            valid = m1.validateDate(startDateString, endDateString);
+
+                                        } while (!valid);
+
+                                        newValue = startDateString + " to " + endDateString;
+
+                                    } else if ("Time".equals(keyword)) {
+                                        do {
+                                            System.out.print("Enter new starting time (24-hour format): ");
+                                            startTimeString = scanner.next();
+                                            System.out.print("Enter new ending time (24-hour format): ");
+                                            endTimeString = scanner.next();
+
+                                            valid = m1.validateTime(startTimeString, endTimeString);
+                                        } while (!valid);
+                                        eventArray[eventCount].setStartTimeString(startTimeString);
+                                        eventArray[eventCount].setEndTimeString(endTimeString);
+                                        newValue = startTimeString + " to " + endTimeString;
+                                    } else if ("Venue".equals(keyword)) {
+                                        do {
+                                            System.out.print("Enter new venue: ");
+                                            venue = scanner.next();
+
+                                            valid = m1.validateAlpha(venue);
+                                        } while (!valid);
+                                        eventArray[eventCount].setVenue(venue);
+                                        newValue = venue;
+
+                                    } else if ("Title".equals(keyword)) {
+                                        do {
+                                            System.out.print("Enter new title: ");
+                                            title = scanner.next();
+
+                                            valid = m1.validateAlpha(title);
+                                        } while (!valid);
+                                        eventArray[eventCount].setTitle(title);
+                                        newValue = title;
                                     }
+
+                                    m1.update(eventId, keyword, newValue);
+
                                     break;
 
                                 case 5:
                                     // Delete Event
                                     eventId = m1.validateEventFile();
 
-                                    // Find the Event object in the array by eventId and delete it
-                                    for (int i = 0; i < eventCount; i++) {
-                                        if (events[i].getEventId().equals(eventId)) {
-                                            System.out.println("Deleting event with ID: " + eventId);
-                                            events[i] = null; // Mark the event as deleted
-                                            break;
-                                        }
-                                    }
-                                    break;*/
+                                    int eventNumber = m1.extractEventNumber(eventId);
+
+                                    eventArray[eventNumber] = null; // Mark the event as deleted
+                                    
+                                    m1.deleteEvent(eventId);
+                                    break;
                                 case 6:
                                     //Update Profile
                                     System.out.print("Enter new username: ");
