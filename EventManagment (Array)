@@ -171,7 +171,7 @@ public class EventManagement {
     }
 
     public void saveEventToFile(String eventFileName, String eventDetails) {
-        
+
         int currentEventCount = readEventCountFromFile();
 
         try (FileWriter writer = new FileWriter(eventFileName)) {
@@ -194,42 +194,16 @@ public class EventManagement {
         }
     }
 
-    /*public void checkIndustry() {
-        valid = true;
-        do {
-            try {
-                industryMenu();
-                int industryChoice = scanner.nextInt();
-                scanner.nextLine();
-                switch (industryChoice) {
-                    case 1:
-                        event[eventCount].setIndustry("Food and Beverage");
-                        break;
-                    case 2:
-                        event[eventCount].setIndustry("Technology and Electronics");
-                        break;
-                    case 3:
-                        event[eventCount].setIndustry("Tourism and Travel");
-                        break;
-                    case 4:
-                        event[eventCount].setIndustry("Houseware and Home Products");
-                        break;
-                    case 5:
-                        event[eventCount].setIndustry("Fashion and Apparel");
-                        break;
-                    default:
-                        System.out.println("Please enter 1 - 5 only");
-                        valid = false;
-                        break;
-                }
-            } catch (InputMismatchException e) {
-                System.out.println("Invalid input. Please enter an integer only.");
-                scanner.nextLine();
-            }
-        } while (!valid);
-    }*/
-
- /*
+    public int extractEventNumber(String eventId) {
+        // Extract and parse the event number from the event ID
+        String numberStr = eventId.replaceAll("\\D+", "");
+        try {
+            return Integer.parseInt(numberStr);
+        } catch (NumberFormatException e) {
+            // Handle parsing error, e.g., if the eventId doesn't contain a valid number
+            return -1; // You can choose an appropriate default or error value
+        }
+    }
 
     public String validateEventFile() {
         valid = false;
@@ -252,28 +226,7 @@ public class EventManagement {
         return eventId;
     }
 
-    public void update(String eventId) {
-        int choice;
-        // Define keywords to search for based on the choice
-        String[] keywords = {
-            "Date",
-            "Time",
-            "Venue",
-            "Industry",
-            "Title"
-        };
-
-        // Validate choice
-        valid = false;
-        do {
-            updateMenu();
-            choice = scanner.nextInt();
-            if (choice < 1 || choice > keywords.length) {
-                System.out.println("Invalid choice. Please enter again.");
-            } else {
-                valid = true;
-            }
-        } while (!valid);
+    public void update(String eventId, String keyword, String newValue) {
 
         int eventNumber = extractEventNumber(eventId);
 
@@ -288,50 +241,12 @@ public class EventManagement {
             }
 
             // Find and remove the line with the specified keyword
-            String keyword = keywords[choice - 1];
             List<Integer> linesToUpdate = new ArrayList<>(); // Store the line numbers to update
 
             for (int i = 0; i < lines.size(); i++) {
                 if (lines.get(i).contains(keyword)) {
                     linesToUpdate.add(i); // Add the line number to the list of lines to update
                 }
-            }
-            boolean valid = false;
-            // Prompt the user for the new value
-            String newValue = "";
-            if (keyword == "Industry") {
-                setIndustry();
-                newValue = industry;
-            } else if (keyword == "Date") {
-                do {
-                    System.out.print("Enter starting date (yyyy-MM-dd): ");
-                    startDateString = scanner.next();
-                    System.out.print("Enter ending date (yyyy-MM-dd): ");
-                    endDateString = scanner.next();
-
-                    valid = validateDate(startDateString, endDateString);
-
-                } while (!valid);
-                newValue = startDateString + " to " + endDateString;
-
-            } else if (keyword == "Time") {
-                do {
-                    System.out.print("Enter starting time (24-hour format): ");
-                    startTimeString = scanner.next();
-                    System.out.print("Enter ending time (24-hour format): ");
-                    endTimeString = scanner.next();
-
-                    valid = validateTime(startTimeString, endTimeString);
-                } while (!valid);
-                newValue = startTimeString + " to " + endTimeString;
-            } else {
-                String text;
-                do {
-                    System.out.print("Enter the new " + keyword + ": ");
-                    text = scanner.next().trim();
-                    valid = validateAlpha(text);
-                } while (!valid);
-                newValue = text;
             }
 
             // Update the lines in the list
@@ -359,23 +274,6 @@ public class EventManagement {
             System.out.println("Failed to update the event file.");
         }
 
-        /*for (int i = 0; i < eventCount; i++) {
-            if (events[i].getEventId().equals(eventId)) {
-                update(events[i]); // Pass the Event object to updateEvent
-                break;
-            }
-        }
-    }
-
-    private int extractEventNumber(String eventId) {
-        // Extract and parse the event number from the event ID
-        String numberStr = eventId.replaceAll("\\D+", "");
-        try {
-            return Integer.parseInt(numberStr);
-        } catch (NumberFormatException e) {
-            // Handle parsing error, e.g., if the eventId doesn't contain a valid number
-            return -1; // You can choose an appropriate default or error value
-        }
     }
 
     public void deleteEvent(String id) {
@@ -389,13 +287,7 @@ public class EventManagement {
         } else {
             System.out.println("Failed to delete the event file with ID " + eventId);
         }
-        for (int i = 0; i < eventCount; i++) {
-            if (events[i].getEventId().equals(eventId)) {
-                System.out.println("Deleting event with ID: " + eventId);
-                events[i] = null; // Mark the event as deleted
-                break;
-            }
-        }
+    }
 
-    }*/
 }
+
