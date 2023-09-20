@@ -152,6 +152,17 @@ public class Test {
 
                                     break;
 
+                                case 2:
+                                    //View All Events
+                                    e1.viewAllEvents(eventCount);
+                                    break;
+
+                                case 3:
+                                    //Search Event 
+                                    eventId = e1.validateEventFile();
+                                    e1.searchEvent(eventId);
+                                    break;
+
                                 case 4:
                                     // Update Event
                                     //Got the eventId
