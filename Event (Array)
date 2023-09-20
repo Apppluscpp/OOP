@@ -163,6 +163,7 @@ public class Event {
         int currentEventCount = readEventCountFromFile();
 
         try (FileWriter writer = new FileWriter(eventFileName)) {
+            writer.write("\nEvent " + currentEventCount + " Details:\n");
             writer.write(eventDetails);
             // Increment event count and update the eventCounter.txt file
             currentEventCount++;
