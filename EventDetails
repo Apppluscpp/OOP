@@ -116,8 +116,7 @@ public class EventDetails {
 
     @Override
     public String toString() {
-        return "\nEvent Details:\n"
-                + "Event ID: " + eventId + "\n"
+        return "Event ID: " + eventId + "\n"
                 + "Title: " + title + "\n"
                 + "Date: " + startDateString + " to " + endDateString + "\n"
                 + "Time: " + startTimeString + " - " + endTimeString + "\n"
