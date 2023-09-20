@@ -1,127 +1,306 @@
-//Store infromation of the events only
+//Handle user interaction, validation, File operations, add, edit, delete file 
 
-import java.util.Date;
-import java.util.Scanner;
+import java.io.*;
+import java.util.*;
+import java.text.*;
+import java.util.concurrent.TimeUnit;
 
 public class Event {
 
-    private String startDateString;
-    private String endDateString;
-    private String startTimeString;
-    private String endTimeString;
-    private String venue;
-    private String industry;
-    private String title;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private SimpleDateFormat timeFormat = new SimpleDateFormat("HHmm");
     private String eventId;
-    private Date startTime = null;
-    private Date endTime = null;
+    private boolean valid;
+
+    private int eventCount;
 
     Scanner scanner = new Scanner(System.in);
 
     public Event() {
+        if (!eventCounterFileExists()) {
+            createEventCounterFile(1);
+        }
+        initializeEventCount();
     }
 
-    public Event(String eventId, String title, String startDate, String endDate, String startTime, String endTime, String venue, String industry) {
-        this.eventId = eventId;
-        this.title = title;
-        this.startDateString = startDate;
-        this.endDateString = endDate;
-        this.startTimeString = startTime;
-        this.endTimeString = endTime;
-        this.venue = venue;
-        this.industry = industry;
-
+    public int getEventCount() {
+        return eventCount;
     }
-    // Add getters for all the properties
 
-    public String getEventId() {
+    public SimpleDateFormat getDateFormat() {
+        return dateFormat;
+    }
+
+    public SimpleDateFormat getTimeFormat() {
+        return timeFormat;
+    }
+
+    public void setDateFormat(SimpleDateFormat dateFormat) {
+        this.dateFormat = dateFormat;
+    }
+
+    public void setTimeFormat(SimpleDateFormat timeFormat) {
+        this.timeFormat = timeFormat;
+    }
+
+    public void mainMenu() {
+        System.out.println("\n\t\tWelcome Admin!!!\n");
+        System.out.println("1.Create Event");
+        System.out.println("2.View Event");
+        System.out.println("3.Search Event");
+        System.out.println("4.Update Event");
+        System.out.println("5.Delete Event");
+        System.out.println("6.Update Profile");
+        System.out.println("7.Logout\n");
+        System.out.print("Enter your selection(1 - 6): ");
+    }
+
+    public void industryMenu() {
+        System.out.println("\n1.Food and Beverage");
+        System.out.println("2.Technology and Electronics");
+        System.out.println("3.Tourism and Travel");
+        System.out.println("4.Houseware and Home Products");
+        System.out.println("5.Fashion and Apparel");
+        System.out.print("Enter industry(1 - 5): ");
+    }
+
+    public void updateMenu() {
+        System.out.println("\n1.Date");
+        System.out.println("2.Time");
+        System.out.println("3.Venue");
+        System.out.println("4.Industry");
+        System.out.println("5.Title");
+        System.out.print("Enter selection(1 - 5): ");
+    }
+
+    public boolean validateDate(String startDateString, String endDateString) {
+        try {
+            Date startDate = getDateFormat().parse(startDateString);
+            Date endDate = getDateFormat().parse(endDateString);
+
+            // Get the current date
+            Date currentDate = new Date();
+
+            // Calculate the difference in days between the parsed start date and the current date
+            long diffInDaysStart = TimeUnit.DAYS.convert(startDate.getTime() - currentDate.getTime(), TimeUnit.MILLISECONDS);
+
+            // Calculate the difference in days between the parsed end date and the start date
+            long diffInDaysEnd = TimeUnit.DAYS.convert(endDate.getTime() - startDate.getTime(), TimeUnit.MILLISECONDS);
+
+            if (diffInDaysStart >= 2 && diffInDaysEnd >= 0) {
+
+                return true;
+            } else {
+                System.out.println("Invalid date. The start date must be at least 3 days more than the current date, ");
+                return false;
+            }
+        } catch (ParseException e) {
+            System.out.println("Invalid date format. Please use yyyy-MM-dd.");
+            return false;
+        }
+    }
+
+    public boolean validateTime(String startTimeString, String endTimeString) {
+        try {
+            getTimeFormat().setLenient(false); // Disallow lenient parsing
+            Date startTime = getTimeFormat().parse(startTimeString);
+            Date endTime = getTimeFormat().parse(endTimeString);
+
+            // Check if the end time is greater than the start time
+            if (startTime.compareTo(endTime) < 0) {
+
+                return true;
+            } else {
+                System.out.println("Ending time must be greater than starting time.\n");
+                return false;
+            }
+        } catch (ParseException e) {
+            System.out.println("Invalid time format. Please use 24-hour format.\n");
+            return false;
+        }
+    }
+
+    public boolean validateAlpha(String input) {
+        if (!input.matches("^[a-zA-Z ]+$")) {
+            System.out.println("Invalid input. Please use only alphabetic characters and spaces.\n");
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private boolean eventCounterFileExists() {
+        File eventCounterFile = new File("eventCounter.txt");
+        return eventCounterFile.exists();
+    }
+
+    private void createEventCounterFile(int initialValue) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("eventCounter.txt"))) {
+            writer.write(Integer.toString(initialValue));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void initializeEventCount() {
+        eventCount = readEventCountFromFile();
+    }
+
+    public int readEventCountFromFile() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("eventCounter.txt"))) {
+            String line = reader.readLine();
+            if (line != null) {
+                return Integer.parseInt(line);
+            }
+        } catch (IOException | NumberFormatException e) {
+            e.printStackTrace();
+        }
+        return 1; // Default event count if file doesn't exist or is corrupted
+    }
+
+    public void saveEventToFile(String eventFileName, String eventDetails) {
+
+        int currentEventCount = readEventCountFromFile();
+
+        try (FileWriter writer = new FileWriter(eventFileName)) {
+            writer.write(eventDetails);
+            // Increment event count and update the eventCounter.txt file
+            currentEventCount++;
+            writeEventCountToFile(currentEventCount);
+            System.out.println("\nEvent details saved to " + eventFileName);
+
+        } catch (IOException e) {
+            System.out.println("Failed to save event details to file.");
+        }
+    }
+
+    private void writeEventCountToFile(int eventCount) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("eventCounter.txt"))) {
+            writer.write(Integer.toString(eventCount));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int extractEventNumber(String eventId) {
+        // Extract and parse the event number from the event ID
+        String numberStr = eventId.replaceAll("\\D+", "");
+        try {
+            return Integer.parseInt(numberStr);
+        } catch (NumberFormatException e) {
+            // Handle parsing error, e.g., if the eventId doesn't contain a valid number
+            return -1; // You can choose an appropriate default or error value
+        }
+    }
+
+    public String validateEventFile() {
+        valid = false;
+        do {
+            System.out.print("Enter event ID: ");
+            eventId = scanner.next();
+
+            int eventNumber = extractEventNumber(eventId);
+
+            // Define the filename based on the eventID
+            String eventFileName = "Event" + eventNumber + ".txt";
+
+            File eventFile = new File(eventFileName);
+            if (!eventFile.exists()) {
+                System.out.println("Event file with ID " + eventId + " does not exist. Please enter a valid event ID.");
+            } else {
+                valid = true;
+            }
+        } while (!valid);
         return eventId;
     }
 
-    public String getTitle() {
-        return title;
+    public String getKeyword() {
+        String[] keywords = {
+            "Date",
+            "Time",
+            "Venue",
+            "Industry",
+            "Title"
+        };
+
+        // Validate choice
+        valid = false;
+        int choice;
+        do {
+            updateMenu();
+            choice = scanner.nextInt();
+            if (choice < 1 || choice > keywords.length) {
+                System.out.println("Invalid choice. Please enter again.");
+            } else {
+                valid = true;
+            }
+        } while (!valid);
+
+        return keywords[choice - 1];
+
     }
 
-    public String getStartDateString() {
-        return startDateString;
+    public void update(String eventId, String keyword, String newValue) {
+
+        int eventNumber = extractEventNumber(eventId);
+
+        String eventFileName = "Event" + eventNumber + ".txt";
+
+        try (BufferedReader fileReader = new BufferedReader(new FileReader(eventFileName))) {
+            // Read the file contents into a list of lines
+            List<String> lines = new ArrayList<>();
+            String line;
+            while ((line = fileReader.readLine()) != null) {
+                lines.add(line);
+            }
+
+            // Find and remove the line with the specified keyword
+            List<Integer> linesToUpdate = new ArrayList<>(); // Store the line numbers to update
+
+            for (int i = 0; i < lines.size(); i++) {
+                if (lines.get(i).contains(keyword)) {
+                    linesToUpdate.add(i); // Add the line number to the list of lines to update
+                }
+            }
+
+            // Update the lines in the list
+            for (Integer lineIndex : linesToUpdate) {
+                lines.set(lineIndex, keyword + ": " + newValue);
+            }
+
+            // Write the updated list of lines back to the file
+            try (BufferedWriter fileWriter = new BufferedWriter(new FileWriter(eventFileName))) {
+                for (String updated : lines) {
+                    fileWriter.write(updated);
+                    fileWriter.newLine();
+                }
+                System.out.println(keyword + " updated successfully.");
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("Failed to update the event file.");
+            }
+
+            // Close the fileReader before renaming
+            fileReader.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Failed to update the event file.");
+        }
+
     }
 
-    public String getEndDateString() {
-        return endDateString;
+    public void deleteEvent(String id) {
+
+        int eventNumber = extractEventNumber(eventId);
+
+        String eventFileName = "Event" + eventNumber + ".txt";
+        File eventFile = new File(eventFileName);
+        if (eventFile.delete()) {
+            System.out.println("Event with ID " + eventId + " has been deleted.");
+        } else {
+            System.out.println("Failed to delete the event file with ID " + eventId);
+        }
     }
 
-    public String getStartTimeString() {
-        return startTimeString;
-    }
-
-    public String getEndTimeString() {
-        return endTimeString;
-    }
-
-    public String getVenue() {
-        return venue;
-    }
-
-    public String getIndustry() {
-        return industry;
-    }
-
-    public void setStartDateString(String startDateString) {
-        this.startDateString = startDateString;
-    }
-
-    public void setEndDateString(String endDateString) {
-        this.endDateString = endDateString;
-    }
-
-    public void setStartTimeString(String startTimeString) {
-        this.startTimeString = startTimeString;
-    }
-
-    public void setEndTimeString(String endTimeString) {
-        this.endTimeString = endTimeString;
-    }
-
-    public void setStartTime(Date startTime) {
-        this.startTime = startTime;
-    }
-
-    public void setEndTime(Date endTime) {
-        this.endTime = endTime;
-    }
-
-    public void setEventId(String eventId) {
-        this.eventId = eventId;
-    }
-
-    public String getStartTime() {
-        return endTimeString;
-    }
-
-    public String getEndTime() {
-        return endTimeString;
-    }
-
-    public void setVenue(String venue) {
-        this.venue = venue;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setIndustry(String industry) {
-        this.industry = industry;
-    }
-
-    @Override
-    public String toString() {
-        return "\nEvent Details:\n"
-                + "Event ID: " + eventId + "\n"
-                + "Title: " + title + "\n"
-                + "Date: " + startDateString + " to " + endDateString + "\n"
-                + "Time: " + startTimeString + " - " + endTimeString + "\n"
-                + "Venue: " + venue + "\n"
-                + "Industry: " + industry + "\n\n";
-    }
 }
