@@ -26,10 +26,6 @@ public class Test {
         Participant participant = new Participant();
         Event e1 = new Event();
 
-        int eventCount = e1.readEventCountFromFile();
-        EventDetails[] eventArray = new EventDetails[MAX_EVENTS]; // Array to store Event objects
-        eventArray[eventCount] = new EventDetails();
-
         while (!exit && loginAttempt < 3) {
             System.out.println("\t\t***Welcome to the Login Page***\n");
             do {
@@ -46,6 +42,10 @@ public class Test {
 
             switch (loginChoice) {
                 case 1:
+
+                    int eventCount = e1.readEventCountFromFile();
+                    EventDetails[] eventArray = new EventDetails[MAX_EVENTS]; // Array to store Event objects
+                    eventArray[eventCount] = new EventDetails();
                     do {
                         System.out.print("Enter your username: ");
                         username = scanner.next();
@@ -154,6 +154,7 @@ public class Test {
 
                                 case 2:
                                     //View All Events
+                                    eventCount = e1.readEventCountFromFile();
                                     e1.viewAllEvents(eventCount);
                                     break;
 
