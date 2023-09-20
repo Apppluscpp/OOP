@@ -17,7 +17,6 @@ public class Test {
         String title;
         String eventId;
         int loginAttempt = 0;
-
         int MAX_EVENTS = 100; // Maximum number of events
 
         Scanner scanner = new Scanner(System.in);
@@ -25,7 +24,11 @@ public class Test {
         Admin admin = new Admin();
         Exhibitor exhibitor = new Exhibitor();
         Participant participant = new Participant();
-        EventManagement m1 = new EventManagement();
+        Event e1 = new Event();
+
+        int eventCount = e1.readEventCountFromFile();
+        EventDetails[] eventArray = new EventDetails[MAX_EVENTS]; // Array to store Event objects
+        eventArray[eventCount] = new EventDetails();
 
         while (!exit && loginAttempt < 3) {
             System.out.println("\t\t***Welcome to the Login Page***\n");
@@ -43,10 +46,6 @@ public class Test {
 
             switch (loginChoice) {
                 case 1:
-                    int eventCount = m1.readEventCountFromFile();
-
-                    Event[] eventArray = new Event[MAX_EVENTS]; // Array to store Event objects
-                    eventArray[eventCount] = new Event();
                     do {
                         System.out.print("Enter your username: ");
                         username = scanner.next();
@@ -56,7 +55,7 @@ public class Test {
                         valid = admin.login(username, password, Admin.getFilePath());
                         if (valid) {
                             loginAttempt = 0;
-                            m1.mainMenu();
+                            e1.mainMenu();
                             adminChoice = scanner.nextInt();
                             scanner.nextLine();
                             switch (adminChoice) {
@@ -66,7 +65,6 @@ public class Test {
                                     String startTimeString = "";
                                     String endTimeString = "";
                                     String venue = "";
-                                    String industry = "";
 
                                     do {
                                         System.out.print("\nEnter starting date (yyyy-MM-dd): ");
@@ -74,7 +72,7 @@ public class Test {
                                         System.out.print("Enter ending date (yyyy-MM-dd): ");
                                         endDateString = scanner.next();
 
-                                        valid = m1.validateDate(startDateString, endDateString);
+                                        valid = e1.validateDate(startDateString, endDateString);
 
                                     } while (!valid);
                                     eventArray[eventCount].setStartDateString(startDateString);
@@ -85,7 +83,7 @@ public class Test {
                                         System.out.print("Enter ending time (24-hour format): ");
                                         endTimeString = scanner.next();
 
-                                        valid = m1.validateTime(startTimeString, endTimeString);
+                                        valid = e1.validateTime(startTimeString, endTimeString);
 
                                     } while (!valid);
                                     eventArray[eventCount].setStartTimeString(startTimeString);
@@ -95,7 +93,7 @@ public class Test {
                                         System.out.print("Enter venue: ");
                                         venue = scanner.next();
 
-                                        valid = m1.validateAlpha(venue);
+                                        valid = e1.validateAlpha(venue);
 
                                     } while (!valid);
 
@@ -104,7 +102,7 @@ public class Test {
                                     valid = true;
                                     do {
                                         try {
-                                            m1.industryMenu();
+                                            e1.industryMenu();
                                             int industryChoice = scanner.nextInt();
                                             scanner.nextLine();
                                             switch (industryChoice) {
@@ -138,7 +136,7 @@ public class Test {
                                         System.out.print("Enter title: ");
                                         title = scanner.next();
 
-                                        valid = m1.validateAlpha(title);
+                                        valid = e1.validateAlpha(title);
 
                                     } while (!valid);
                                     eventArray[eventCount].setTitle(title);
@@ -149,7 +147,7 @@ public class Test {
 
                                     String eventDetails = eventArray[eventCount].toString();
 
-                                    m1.saveEventToFile(eventFileName, eventDetails);
+                                    e1.saveEventToFile(eventFileName, eventDetails);
                                     System.out.print(eventArray[eventCount]);
 
                                     break;
@@ -157,40 +155,21 @@ public class Test {
                                 case 4:
                                     // Update Event
                                     //Got the eventId
-                                    eventId = m1.validateEventFile();
+                                    eventId = e1.validateEventFile();
 
-                                    String[] keywords = {
-                                        "Date",
-                                        "Time",
-                                        "Venue",
-                                        "Industry",
-                                        "Title"
-                                    };
-
-                                    // Validate choice
-                                    valid = false;
-                                    int choice;
-                                    do {
-                                        m1.updateMenu();
-                                        choice = scanner.nextInt();
-                                        if (choice < 1 || choice > keywords.length) {
-                                            System.out.println("Invalid choice. Please enter again.");
-                                        } else {
-                                            valid = true;
-                                        }
-                                    } while (!valid);
-
-                                    String keyword = keywords[choice - 1];
+                                    String keyword = e1.getKeyword();
 
                                     String newValue = "";
                                     if ("Industry".equals(keyword)) {
                                         valid = true;
                                         do {
                                             try {
-                                                m1.industryMenu();
+                                                e1.industryMenu();
                                                 int industryChoice = scanner.nextInt();
                                                 scanner.nextLine();
                                                 switch (industryChoice) {
+                                                    //set the updated industry in the eventArray
+                                                    //get the newValue to be printed into the file
                                                     case 1:
                                                         eventArray[eventCount].setIndustry("Food and Beverage");
                                                         newValue = "Food and Beverage";
@@ -230,12 +209,12 @@ public class Test {
                                             startDateString = scanner.next();
                                             System.out.print("Enter ending date (yyyy-MM-dd): ");
                                             endDateString = scanner.next();
-                                            eventArray[eventCount].setStartDateString(startDateString);
-                                            eventArray[eventCount].setEndDateString(endDateString);
-                                            valid = m1.validateDate(startDateString, endDateString);
+
+                                            valid = e1.validateDate(startDateString, endDateString);
 
                                         } while (!valid);
-
+                                        eventArray[eventCount].setStartDateString(startDateString);
+                                        eventArray[eventCount].setEndDateString(endDateString);
                                         newValue = startDateString + " to " + endDateString;
 
                                     } else if ("Time".equals(keyword)) {
@@ -245,7 +224,7 @@ public class Test {
                                             System.out.print("Enter new ending time (24-hour format): ");
                                             endTimeString = scanner.next();
 
-                                            valid = m1.validateTime(startTimeString, endTimeString);
+                                            valid = e1.validateTime(startTimeString, endTimeString);
                                         } while (!valid);
                                         eventArray[eventCount].setStartTimeString(startTimeString);
                                         eventArray[eventCount].setEndTimeString(endTimeString);
@@ -255,7 +234,7 @@ public class Test {
                                             System.out.print("Enter new venue: ");
                                             venue = scanner.next();
 
-                                            valid = m1.validateAlpha(venue);
+                                            valid = e1.validateAlpha(venue);
                                         } while (!valid);
                                         eventArray[eventCount].setVenue(venue);
                                         newValue = venue;
@@ -265,25 +244,25 @@ public class Test {
                                             System.out.print("Enter new title: ");
                                             title = scanner.next();
 
-                                            valid = m1.validateAlpha(title);
+                                            valid = e1.validateAlpha(title);
                                         } while (!valid);
                                         eventArray[eventCount].setTitle(title);
                                         newValue = title;
                                     }
 
-                                    m1.update(eventId, keyword, newValue);
+                                    e1.update(eventId, keyword, newValue);
 
                                     break;
 
                                 case 5:
                                     // Delete Event
-                                    eventId = m1.validateEventFile();
+                                    eventId = e1.validateEventFile();
 
-                                    int eventNumber = m1.extractEventNumber(eventId);
+                                    int eventNumber = e1.extractEventNumber(eventId);
 
                                     eventArray[eventNumber] = null; // Mark the event as deleted
-                                    
-                                    m1.deleteEvent(eventId);
+
+                                    e1.deleteEvent(eventId);
                                     break;
                                 case 6:
                                     //Update Profile
