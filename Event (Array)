@@ -46,7 +46,7 @@ public class Event {
     public void mainMenu() {
         System.out.println("\n\t\tWelcome Admin!!!\n");
         System.out.println("1.Create Event");
-        System.out.println("2.View Event");
+        System.out.println("2.View All Events");
         System.out.println("3.Search Event");
         System.out.println("4.Update Event");
         System.out.println("5.Delete Event");
@@ -300,6 +300,39 @@ public class Event {
             System.out.println("Event with ID " + eventId + " has been deleted.");
         } else {
             System.out.println("Failed to delete the event file with ID " + eventId);
+        }
+    }
+
+    public void searchEvent(String Id) {
+
+        int eventNumber = extractEventNumber(eventId);
+
+        String eventFileName = "Event" + eventNumber + ".txt";
+        File eventFile = new File(eventFileName);
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(eventFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (IOException e) {
+            System.out.println("Failed to read event file: " + eventFileName);
+        }
+    }
+
+    public void viewAllEvents(int eventCount) {
+        for (int i = 1; i < eventCount; i++) {
+            String eventFileName = "Event" + i + ".txt";
+            File eventFile = new File(eventFileName);
+
+            try (BufferedReader reader = new BufferedReader(new FileReader(eventFile))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    System.out.println(line);
+                }
+            } catch (IOException e) {
+                System.out.println("Failed to read event file: " + eventFileName);
+            }
         }
     }
 
