@@ -16,6 +16,13 @@ public class EventDetails {
     private Date startTime = null;
     private Date endTime = null;
 
+    private String titleChoice;
+    private String p_name;
+    private String p_email;
+    private int p_age;
+    private int feed;
+    private int rate;
+
     Scanner scanner = new Scanner(System.in);
 
     public EventDetails() {
@@ -32,8 +39,25 @@ public class EventDetails {
         this.industry = industry;
 
     }
-    // Add getters for all the properties
 
+    public EventDetails(String titleChoice, String p_name, String p_email, int p_age, int feed, int rate) {
+        this.titleChoice = titleChoice;
+        this.p_name = p_name;
+        this.p_email = p_email;
+        this.p_age = p_age;
+        this.feed = feed;
+        this.rate = rate;
+    }
+
+    public EventDetails(String titleChoice, String p_name, String p_email, int feed, int rate) {
+        this.titleChoice = titleChoice;
+        this.p_name = p_name;
+        this.p_email = p_email;
+        this.feed = feed;
+        this.rate = rate;
+    }
+
+    // Add getters for all the properties
     public String getEventId() {
         return eventId;
     }
@@ -112,6 +136,30 @@ public class EventDetails {
 
     public void setIndustry(String industry) {
         this.industry = industry;
+    }
+
+    public String getP_name() {
+        return p_name;
+    }
+
+    public String getP_email() {
+        return p_email;
+    }
+
+    public int getP_age() {
+        return p_age;
+    }
+
+    public int getFeed() {
+        return feed;
+    }
+
+    public int getRate() {
+        return rate;
+    }
+
+    public String getTitleChoice() {
+        return titleChoice;
     }
 
     @Override
