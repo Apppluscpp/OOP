@@ -20,74 +20,6 @@ public class Admin extends User {
         return ADMIN_FILE;
     }
 
-    public void adminMenu() {
-        System.out.println("\n\t\tWelcome Admin!!!\n");
-        System.out.println("1. Add Event");
-        System.out.println("2. View Event");
-        System.out.println("3. Modify Event");
-        System.out.println("4. Delete Event");
-        System.out.println("5. Update Profile");
-        System.out.println("5. Logout\n");
-    }
-
-    public void adminUpdate(String username, String password, String newUsername, String newPassword) {
-        // Check if the entered credentials exist in the "Admin.txt" file and delete them
-        if (removeCredentials(username, password)) {
-            // Insert the new credentials into the "Admin.txt" file
-            insertCredentials(newUsername, newPassword);
-            System.out.println("Profile updated successfully.");
-        }
-    }
-
-    // Method to remove credentials from the "Admin.txt" file
-    private boolean removeCredentials(String username, String password) {
-        try {
-            File inputFile = new File(ADMIN_FILE);
-            File tempFile = new File("TempAdmin.txt");
-
-            BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-            PrintWriter writer = new PrintWriter(new FileWriter(tempFile));
-
-            String line;
-            boolean found = false;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(" ");
-                if (parts.length == 2) {
-                    String fileUsername = parts[0];
-                    String filePassword = parts[1];
-                    if (username.equals(fileUsername) && password.equals(filePassword)) {
-                        found = true;
-                    } else {
-                        writer.println(line);
-                    }
-                }
-            }
-
-            writer.close();
-            reader.close();
-
-            if (found) {
-                if (inputFile.delete()) {
-                    if (tempFile.renameTo(inputFile)) {
-                        return true; // Credentials removed successfully
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false; // Credentials not removed
-    }
-
-    // Method to insert new credentials into the "Admin.txt" file
-    private void insertCredentials(String newUsername, String newPassword) {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(ADMIN_FILE, true))) {
-            writer.println(newUsername + " " + newPassword);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void insertDefaultCredentials(String filePath, String defaultUsername, String defaultPassword) {
         if (!checkDuplicate(filePath, defaultUsername, defaultPassword)) {
             try (PrintWriter writer = new PrintWriter(new FileWriter(filePath, true))) {
@@ -96,5 +28,19 @@ public class Admin extends User {
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public void menu() {
+        System.out.println("\n\t\tWelcome Admin!!!\n");
+        System.out.println("1. Add Event");
+        System.out.println("2. View Event");
+        System.out.println("3. Search Event");        
+        System.out.println("4. Modify Event");
+        System.out.println("5. Delete Event");
+        System.out.println("6. Event Report");
+        System.out.println("7. Update Profile");
+        System.out.println("8. Logout\n");
+        System.out.print("Enter your a selection(1 - 7): ");
     }
 }
