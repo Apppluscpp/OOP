@@ -43,18 +43,6 @@ public class Event {
         this.timeFormat = timeFormat;
     }
 
-    public void mainMenu() {
-        System.out.println("\n\t\tWelcome Admin!!!\n");
-        System.out.println("1.Create Event");
-        System.out.println("2.View All Events");
-        System.out.println("3.Search Event");
-        System.out.println("4.Update Event");
-        System.out.println("5.Delete Event");
-        System.out.println("6.Update Profile");
-        System.out.println("7.Logout\n");
-        System.out.print("Enter your selection(1 - 6): ");
-    }
-
     public void industryMenu() {
         System.out.println("\n1.Food and Beverage");
         System.out.println("2.Technology and Electronics");
@@ -158,7 +146,7 @@ public class Event {
         return 1; // Default event count if file doesn't exist or is corrupted
     }
 
-    public void saveEventToFile(String eventFileName, String eventDetails) {
+    public void saveEvent(String eventFileName, String eventDetails) {
 
         int currentEventCount = readEventCountFromFile();
 
@@ -336,5 +324,4 @@ public class Event {
             }
         }
     }
-
 }
