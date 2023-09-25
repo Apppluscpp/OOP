@@ -1,0 +1,251 @@
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.io.FileWriter;
+import java.io.FileReader;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Survey {
+    private static String titleChoice;
+//    private static int surveyLineNumber = 0;
+    private static int totalAge;
+    private static int feed1_count;
+    private static int feed2_count;
+    private static int feed3_count;
+    private static double totalRate;
+    private static int individualCount;
+    private static int lineNum = 0;
+    private static int desiredReport;
+   
+    public Survey(){
+        
+    }
+    
+    public static void surveyMenu(){
+        System.out.println("\n\t\tWelcome !!!\n");
+        System.out.println("======================================");
+        System.out.println("1. Individual Attendee");
+        System.out.println("2. Representative from an Organization");
+        System.out.print("Select (1 - 2): ");
+        
+    }
+    
+    public static void feedback(){
+        System.out.println("\n\t\tFeedback\n");
+        System.out.println("======================================");
+        System.out.println("1. Outstanding");
+        System.out.println("2. Satisfactory");
+        System.out.println("3. Unimpressive");
+        System.out.print("Select (1 - 3): ");
+    }
+    
+    public static void rating(){
+        System.out.println("\n\t\tRating\n");
+        System.out.println("======================================");
+        System.out.println("Overall Performance");
+        System.out.print("Please rate (1 - 5): ");
+ 
+    }
+    
+    public static void viewAllEventsTitle(int eventCount) {
+        System.out.println("\n\t\tEvent Title\n");
+        System.out.println("======================================");
+        for (int i = 1; i < eventCount; i++) {
+            int rowNum =0;
+            String eventFileName = "Event" + i + ".txt";
+            File eventFile = new File(eventFileName);
+
+            try (BufferedReader reader = new BufferedReader(new FileReader(eventFile))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if(rowNum == 3){
+                        System.out.println(i+ " . " +line.substring(7));
+                    }
+                    //System.out.println(line);
+                    rowNum++;
+                }
+            } catch (IOException e) {
+                System.out.println("Failed to read event file: " + eventFileName);
+            }
+        }
+        System.out.print("Select an Event:");
+    }
+    
+    public static boolean onlyAlphabets(String str, int n){
+        if (str == null || str == "") {
+            return false;
+        }
+ 
+       
+        for (int i = 0; i < n; i++) {
+            // Check if the specified
+            // character is not a letter then
+            // return false,
+            // else return true
+            if (!Character
+                .isLetter(str.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    public static boolean isValid(String p_email ){
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\."+
+                            "[a-zA-Z0-9_+&*-]+)*@" +
+                            "(?:[a-zA-Z0-9-]+\\.)+[a-z" +
+                            "A-Z]{2,7}$";
+        
+                              
+        Pattern pat = Pattern.compile(emailRegex);
+
+        
+        if (p_email == null)
+            return false;
+        return pat.matcher(p_email).matches();
+        
+    }
+    
+    public static void createSurveyFile(int count, String titleChoice, String p_name, String p_email, int p_age, int feed, int rate){
+        try{
+            //String fileName = folder.getAbsolutePath() + File.separator + "Survey" + (count + 1) + ".txt";
+            FileWriter writer = new FileWriter("Survey" + (count + 1) +".txt");
+            writer.write(titleChoice + "\n" + p_name + "\n" + p_email + "\n" + p_age + "\n" + feed + "\n" + rate);
+            writer.close();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+    
+    public static void createSurveyFile(int count,String titleChoice, String p_name, String p_email, int feed, int rate){
+        
+        try{
+            FileWriter writer = new FileWriter("Survey" + (count + 1) +".txt");
+            writer.write(titleChoice + "\n" + p_name + "\n" + p_email + "\n" + "0" + "\n" + feed + "\n" + rate);
+            writer.close();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+    
+    
+
+    
+    public static void report(int count, String viewChoice) {
+        for(int i=0; i<count ; i++){
+            int lineNum = 0;
+            try {
+                BufferedReader reader = new BufferedReader(new FileReader("Survey" + (i+1) + ".txt"));
+                String line = reader.readLine();
+                if(line.equals(viewChoice)){
+                    lineNum++;
+                    desiredReport++;
+                    while ((line = reader.readLine()) != null && lineNum<6 ) {
+
+                    if (lineNum == 3) {
+                        if(line.equals("0")){
+
+                        }else{
+                            totalAge += Integer.parseInt(line);
+                            individualCount++;
+
+                            
+                        }
+                    }
+                    if (lineNum == 4) {
+                        if(line.equals("1")){
+                            feed1_count++;
+                        }else if(line.equals("2")){
+                            feed2_count++;
+                        }else{
+                            feed3_count++;
+                        }
+                        
+                    } 
+                    if (lineNum == 5) {
+                        totalRate += Integer.parseInt(line);
+                    }
+
+                    
+                    
+                    lineNum++;
+                }
+                }
+                
+                reader.close();
+                
+
+
+                
+                
+
+            
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            
+            
+        }
+        
+        System.out.println("\n\tSurvey Report\n");
+        System.out.println("======================================");
+        if(individualCount > 0){
+            System.out.println("Average age of Individuals: " + totalAge/individualCount);
+            System.out.println("Individual Representation: " + individualCount);
+            System.out.println("Organization Representation: " + (desiredReport - individualCount));
+        }else{
+            System.out.println("Average age of Individuals: " + 0);
+            System.out.println("Individual Representation: " + 0);
+            System.out.println("Organization Representation: " + (desiredReport));
+        }
+        
+        System.out.println("Outstanding: " + feed1_count);
+        System.out.println("Satisfactory: " + feed2_count);
+        System.out.println("Unimpressive: " + feed3_count);
+        System.out.println("Overall Rating: " + (totalRate/desiredReport));
+        
+    }
+    
+   
+    
+    
+    
+    public static int countSurveyFile(){
+        String directoryPath = System.getProperty("user.dir");
+        
+        String prefix = "Survey";
+        
+        File directory = new File(directoryPath);
+        
+        //int surveyCounter = 0;
+        
+        if (directory.exists() && directory.isDirectory()) {
+            // List all files in the directory
+            File[] files = directory.listFiles();
+
+            // Initialize a counter for matching files
+            int count = 0;
+
+            if (files != null) {
+                // Iterate through the files and count the ones that start with the specified prefix
+                for (File file : files) {
+                    if (file.isFile() && file.getName().startsWith(prefix)) {
+                        count++;
+                    }
+                }
+
+                // Print the count
+                return count;
+            } else {
+                System.err.println("Error listing files in the directory.");
+            }
+        } else {
+            System.err.println("The specified directory does not exist or is not a directory.");
+        } 
+    return 1;
+    }
+   
+}
