@@ -147,6 +147,5 @@ public int countRegistrations(String eventId) {
         System.out.println("1. Register Event");
         System.out.println("2. Update Profile");
         System.out.println("3. Logout\n");
-        System.out.print("Enter your a selection(1 - 3): ");
     }
 }
