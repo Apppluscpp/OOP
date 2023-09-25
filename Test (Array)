@@ -14,24 +14,36 @@ public class Test {
         boolean valid;
         int loginChoice;
         int adminChoice;
+        int exhiChoice;
+        int partChoice;
         String title;
         String eventId;
         int loginAttempt = 0;
         int MAX_EVENTS = 100; // Maximum number of events
 
+        boolean emailAvailable = false;
+        boolean ageAvailable = false;
+        boolean nameAvailable = false;
+        boolean validfeed = false;
+        boolean validrate = false;
+        int p_age = 0;
+        int feed;
+        int rate;
+        String titleChoice;
+        EventDetails[] surveyArray = new EventDetails[100];
+
         Scanner scanner = new Scanner(System.in);
 
+        User user = new User();
         Admin admin = new Admin();
         Exhibitor exhibitor = new Exhibitor();
         Participant participant = new Participant();
         Event e1 = new Event();
 
         while (!exit && loginAttempt < 3) {
-            System.out.println("\t\t***Welcome to the Login Page***\n");
             do {
                 try {
-                    admin.welcomePage();
-                    System.out.print("Enter your login choice(1 - 4): ");
+                    user.menu();
                     loginChoice = scanner.nextInt();
                     break;
                 } catch (InputMismatchException e) {
@@ -55,7 +67,7 @@ public class Test {
                         valid = admin.login(username, password, Admin.getFilePath());
                         if (valid) {
                             loginAttempt = 0;
-                            e1.mainMenu();
+                            admin.menu();
                             adminChoice = scanner.nextInt();
                             scanner.nextLine();
                             switch (adminChoice) {
@@ -147,7 +159,7 @@ public class Test {
 
                                     String eventDetails = eventArray[eventCount].toString();
 
-                                    e1.saveEventToFile(eventFileName, eventDetails);
+                                    e1.saveEvent(eventFileName, eventDetails);
                                     System.out.print(eventArray[eventCount]);
 
                                     break;
@@ -180,8 +192,7 @@ public class Test {
                                                 int industryChoice = scanner.nextInt();
                                                 scanner.nextLine();
                                                 switch (industryChoice) {
-                                                    //set the updated industry in the eventArray
-                                                    //get the newValue to be printed into the file
+
                                                     case 1:
                                                         eventArray[eventCount].setIndustry("Food and Beverage");
                                                         newValue = "Food and Beverage";
@@ -276,19 +287,47 @@ public class Test {
 
                                     e1.deleteEvent(eventId);
                                     break;
+
                                 case 6:
+                                    //View Report
+                                    eventCount = e1.readEventCountFromFile();
+                                    System.out.println("1. Survey Report");
+                                    System.out.println("2. Registrations Report");
+                                    System.out.print("Enter selection (1 - 2): ");
+                                    int selection = scanner.nextInt();
+                                    switch (selection) {
+                                        case 1:
+                                            eventCount = e1.readEventCountFromFile();
+                                            Survey.viewAllEventsTitle(eventCount);
+                                            titleChoice = scanner.next();
+                                            Survey.report(Survey.countSurveyFile(), titleChoice);
+                                            break;
+
+                                        case 2:
+                                            eventId = e1.validateEventFile();
+                                            System.out.println("Total Registration: " + exhibitor.countRegistrations(eventId));
+                                            break;
+
+                                        default:
+                                            System.out.println("Invalid Selection. Please enter 1 or 2 only");
+                                            break;
+                                    }
+
+                                    break;
+
+                                case 7:
                                     //Update Profile
                                     System.out.print("Enter new username: ");
                                     newUsername = scanner.next();
                                     System.out.print("Enter new Password: ");
                                     newPassword = scanner.next();
 
-                                    admin.adminUpdate(username, password, newUsername, newPassword);
+                                    admin.update(username, password, newUsername, newPassword, Admin.getFilePath());
 
                                     break;
 
                                 //log out
-                                case 7:
+                                case 8:
                                     System.exit(0);
 
                                 default:
@@ -317,7 +356,65 @@ public class Test {
                             loginAttempt++;
                         }
                     } while (!valid && loginAttempt < 3);
+                    exhibitor.menu();
+                    exhiChoice = scanner.nextInt();
+                    switch (exhiChoice) {
+                        case 1:
+                            String name,
+                             country,
+                             email;
+                            //Register Event
+                            eventCount = e1.readEventCountFromFile();
+                            int registrationCount = exhibitor.readRegistrationCountFromFile();
+                            e1.viewAllEvents(eventCount);
+                            eventId = e1.validateEventFile();
+                            do {
+                                System.out.println("Enter company's name: ");
+                                name = scanner.next();
+
+                                valid = e1.validateAlpha(name);
+                            } while (!valid);
+
+                            do {
+                                System.out.println("Enter company's origin country: ");
+                                country = scanner.next();
+
+                                valid = e1.validateAlpha(country);
+                            } while (!valid);
+
+                            do {
+                                System.out.println("Enter company's gmail: ");
+                                email = scanner.next();
+
+                                valid = exhibitor.validateEmail(email);
+                            } while (!valid);
+
+                            String registrationFileName = "Registration" + registrationCount + ".txt";
+
+                            exhibitor.saveRegistration(registrationFileName, eventId, name, country, email);
+
+                            break;
+
+                        case 2:
+                            //Update Profile
+                            System.out.print("Enter new username: ");
+                            newUsername = scanner.next();
+                            System.out.print("Enter new Password: ");
+                            newPassword = scanner.next();
+
+                            exhibitor.update(username, password, newUsername, newPassword, Exhibitor.getFilePath());
+                            break;
+
+                        case 3:
+                            System.exit(0);
+                            break;
+
+                        default:
+                            System.out.println("Please enter 1 - 3 only");
+                            break;
+                    }
                     break;
+
                 case 3:
                     do {
                         System.out.print("Enter your username: ");
@@ -327,12 +424,80 @@ public class Test {
 
                         valid = participant.login(username, password, Participant.getFilePath());
                         if (valid) {
-                            loginAttempt = 0;
+                            Survey.surveyMenu();
+                            int select = scanner.nextInt();
+                            scanner.nextLine();
+
+                            eventCount = e1.readEventCountFromFile();
+                            Survey.viewAllEventsTitle(eventCount);
+                            titleChoice = scanner.nextLine();
+
+                            System.out.println("\nParticipation Details");
+                            System.out.println("======================");
+
+                            System.out.print("Name: ");
+                            String p_name = scanner.nextLine();
+
+                            System.out.print("Email: ");
+                            String p_email = scanner.nextLine();
+
+                            if (select == 1) {
+                                System.out.print("Age: ");
+                                p_age = scanner.nextInt();
+
+                                if (p_age >= 1 && p_age <= 100) {
+                                    ageAvailable = true;
+                                } else {
+                                    System.out.println("Invalid Age!!!");
+                                    break;
+                                }
+                            }
+
+                            int len = p_name.length();
+
+                            if (Survey.onlyAlphabets(p_name, len)) {
+                                nameAvailable = true;
+                            } else {
+                                System.out.println("Invalid Name");
+                                break;
+                            }
+
+                            if (Survey.isValid(p_email)) {
+                                emailAvailable = true;
+                            } else {
+                                System.out.println("Invalid Email!!!");
+                                break;
+                            }
+
+                            Survey.feedback();
+                            feed = scanner.nextInt();
+
+                            Survey.rating();
+                            rate = scanner.nextInt();
+
+                            if (feed >= 1 && feed <= 3) {
+                                validfeed = true;
+                            }
+
+                            if (rate >= 1 && rate <= 5) {
+                                validrate = true;
+                            }
+
+                            if (nameAvailable && emailAvailable && ageAvailable && validfeed && validrate) {
+                                surveyArray[Survey.countSurveyFile()] = new EventDetails(titleChoice, p_name, p_email, p_age, feed, rate);
+
+                                Survey.createSurveyFile(Survey.countSurveyFile(), titleChoice, p_name, p_email, p_age, feed, rate);
+                                //count++;
+
+                            } else if (nameAvailable && emailAvailable && validfeed && validrate) {
+                                surveyArray[Survey.countSurveyFile()] = new EventDetails(titleChoice, p_name, p_email, feed, rate);
+                                Survey.createSurveyFile(Survey.countSurveyFile(), titleChoice, p_name, p_email, feed, rate);
+                            }
+
                             break;
                         } else {
                             loginAttempt++;
                         }
-                        //s1.surveyMenu();
                     } while (!valid && loginAttempt < 3);
                     break;
 
