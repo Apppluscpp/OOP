@@ -1,11 +1,24 @@
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.FilenameFilter;
+import java.io.IOException;
+
 public class Exhibitor extends User {
 
     private static final String EXHIBITOR_FILE = "Exhibitor.txt";
+    private int registrationCount;
 
     public Exhibitor() {
         super();
         createFileIfNotExists(EXHIBITOR_FILE);
+        if (!registrationCounterFileExists()) {
+            createRegistrationCounterFile(1);
+        }
+        initializeRegistrationCount();
     }
 
     public Exhibitor(String username, String password) {
@@ -17,6 +30,10 @@ public class Exhibitor extends User {
         return EXHIBITOR_FILE;
     }
 
+    public int getEventCount() {
+        return registrationCount;
+    }
+
     public boolean exhibitorRegistration(String username, String password) {
 
         if (checkDuplicate(EXHIBITOR_FILE, username, password)) {
@@ -26,7 +43,110 @@ public class Exhibitor extends User {
 
         saveData(EXHIBITOR_FILE, username, password);
 
-        System.out.println("Participant account registered successfully!");
+        System.out.println("Exhibitor account registered successfully!");
         return true;
+    }
+
+    public boolean validateEmail(String input) {
+        if (!input.matches("^[a-zA-Z0-9._%+-]+@gmail\\.com$")) {
+            System.out.println("Invalid input. Please use a valid Gmail address.\n");
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private boolean registrationCounterFileExists() {
+        File registrationCounterFile = new File("registrationCounter.txt");
+        return registrationCounterFile.exists();
+    }
+
+    private void createRegistrationCounterFile(int initialValue) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("registrationCounter.txt"))) {
+            writer.write(Integer.toString(initialValue));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void initializeRegistrationCount() {
+        registrationCount = readRegistrationCountFromFile();
+    }
+
+    public int readRegistrationCountFromFile() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("registrationCounter.txt"))) {
+            String line = reader.readLine();
+            if (line != null) {
+                return Integer.parseInt(line);
+            }
+        } catch (IOException | NumberFormatException e) {
+            e.printStackTrace();
+        }
+        return 1; // Default event count if file doesn't exist or is corrupted
+    }
+
+    public void saveRegistration(String eventFileName, String eventId, String name, String country, String email) {
+
+        int currentRegistrationCount = readRegistrationCountFromFile();
+
+        try (FileWriter writer = new FileWriter(eventFileName)) {
+            writer.write("\nRegistration " + currentRegistrationCount + " Details:\n");
+            writer.write(eventId + "\n");
+            writer.write(name + "\n");
+            writer.write(country + "\n");
+            writer.write(email + "\n");
+
+            // Increment event count and update the eventCounter.txt file
+            currentRegistrationCount++;
+            writeRegistrationCountToFile(currentRegistrationCount);
+        } catch (IOException e) {
+        }
+    }
+
+    private void writeRegistrationCountToFile(int registrationCount) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("RegistrationCounter.txt"))) {
+            writer.write(Integer.toString(registrationCount));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+public int countRegistrations(String eventId) {
+        int count = 0;
+        File folder = new File("."); // Specify the directory where registration files are located
+
+        File[] files = folder.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.startsWith("Registration") && name.endsWith(".txt");
+            }
+        });
+
+        for (File file : files) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                // Read the first three lines
+                String line1 = reader.readLine();
+                String line2 = reader.readLine();
+                String line3 = reader.readLine();
+
+                // Check if the third line matches the provided eventId
+                if (line3 != null && line3.trim().equals(eventId)) {
+                    count++;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return count;
+    }
+
+    @Override
+    public void menu() {
+        System.out.println("\n\t\tWelcome Exhibitor!!!\n");
+        System.out.println("1. Register Event");
+        System.out.println("2. Update Profile");
+        System.out.println("3. Logout\n");
+        System.out.print("Enter your a selection(1 - 3): ");
     }
 }
