@@ -79,11 +79,11 @@ public class Event {
 
                 return true;
             } else {
-                System.out.println("Invalid date. The start date must be at least 3 days more than the current date, ");
+                System.out.println("Invalid date. The start date must be at least 3 days more than the current date\n");
                 return false;
             }
         } catch (ParseException e) {
-            System.out.println("Invalid date format. Please use yyyy-MM-dd.");
+            System.out.println("Invalid date format. Please use yyyy-MM-dd.\n");
             return false;
         }
     }
@@ -195,7 +195,7 @@ public class Event {
 
             File eventFile = new File(eventFileName);
             if (!eventFile.exists()) {
-                System.out.println("Event file with ID " + eventId + " does not exist. Please enter a valid event ID.");
+                System.out.println("ID " + eventId + " does not exist. Please enter a valid event ID.\n");
             } else {
                 valid = true;
             }
